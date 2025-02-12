@@ -99,7 +99,7 @@ for month in range(8, 11):
 
             urlList = url_df["링크"]
             
-            urlList.replace("article/","article/comment/")
+            
 
             agent_head = {
                 "User-Agent" : "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36"
@@ -109,11 +109,50 @@ for month in range(8, 11):
             dic_arealist =[]
 
             for url_item in urlList :
-
+                print(url_item,"을 탐색합니다")
+                url_item = url_item.replace("article/","article/comment/")
+                #url = url_item
+                url = "https://n.news.naver.com/mnews/article/comment/011/0004449442?sid=101"
+                print(f"URL : {url}")
+                
                 # URL 요청 및 HTML 가져오기
-                result = requests.get(url = url_item, headers = agent_head)
-                soup   = BeautifulSoup(result.text, "html.parser")
-
+                # result = requests.get(url = url_item, headers = agent_head)
+                # soup   = BeautifulSoup(result.text, "html.parser")
+                
+                print("셀레니움에게 주소를 전달합니다")
+                driver.get(url)
+                time.sleep(1)
+                
+                
+                    # 더보기 
+                while True :
+                    try:
+                        print("더보기 버튼을 찾습니다")
+                        morebutton = driver.find_element(By.CSS_SELECTOR,".u_cbox_page_more")
+                        morebutton.click()
+                        time.sleep(1)
+                    except Exception as e:
+                        print(e)
+                        break
+                
+                # 더보기 버튼을 눌러 페이지 소스가 변경되었으므로
+                # driver에게 페이지의 소스를 다시 요청
+                print("더보기 버튼이 더이상 생성되지 않습니다")
+                print("페이지 소스를 받아옵니다")
+                tmp = driver.page_source
+                print("bs4로 페이지를 파싱합니다")
+                soup   = BeautifulSoup(tmp, "html.parser")
+                print("댓글을 찾습니다")
+                comment = soup.select(".u_cbox_contents")
+                
+                print(comment)
+                
+                exit()
+                
+                #.u_cbox_contents가 없으면 url 삭제후 넘어감
+                
+                
+                exit()    
                 # 기사 영역 선택
                 dic_area = soup.select_one("#dic_area")
 
@@ -139,6 +178,7 @@ for month in range(8, 11):
 
             # 데이터 프레임화
             contents = pd.DataFrame(dic_arealist, columns = ["기사내용"])
+            exit()
 '''
         # _________________________sentiment predict_________________________
 
