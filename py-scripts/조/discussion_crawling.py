@@ -9,8 +9,9 @@ from selenium.webdriver.common.by  import By
 from selenium.webdriver.support.ui import WebDriverWait       as WAIT
 from selenium.webdriver.support    import expected_conditions as EC
 
-
-# Json에서 종목 리스트 불러오기
+''' ===========================
+    Json에서 종목 리스트 불러오기
+    =========================== '''
 def load_stock_list(json_file) :
 
     with open(f"{json_file}", "r", encoding = "UTF-8") as file :
@@ -18,7 +19,9 @@ def load_stock_list(json_file) :
 
     return stock_dict
 
-# 네이버 주식 종목토론방 크롤링하기
+''' ==============================
+    네이버 주식 종목토론방 크롤링하기
+    ============================== '''
 def crawl_discussion(name, code, start_date, end_date) :
 
     # 기본 URL
@@ -34,7 +37,7 @@ def crawl_discussion(name, code, start_date, end_date) :
     all_posts = []
     page      = 1
 
-    # 정해진 기간동안의 게시물을 전부 가져오기
+    # 페이지마다 날짜를 확인하며 데이터 수집
     while True :
 
         url = f"{base_url}&page={page}"
@@ -56,62 +59,77 @@ def crawl_discussion(name, code, start_date, end_date) :
 
         # td 개수로 데이터 수집할 열을 판별하고 수집
         for row in rows :
-            cols = row.find_all("td")
+            cols = row.select("td")
             if len(cols) < 5 :
                 continue
 
-            title = cols[1].text.strip()
+            # 클린봇에 의해 숨겨진 게시글은 건너뛰기
+            title_tag      = cols[1]
+            cleanbot_title = title_tag.select_one(".cleanbot_list_blind")
 
-            # 클린봇에 의해 삭제된 게시글은 수집하지 않기
-            if "클린봇" in title :
+            if cleanbot_title :
                 continue
 
+            for span in title_tag.find_all("span") :
+                span.decompose()
+
+            title     = title_tag.get_text(strip=True)
             date      = cols[0].text.strip()[:10]
             link      = cols[1].a["href"] if cols[1].a else ""
-            view      = cols[2].text.strip()
-            recommend = cols[3].text.strip()
-            dislike   = cols[4].text.strip()
+            view      = cols[3].text.strip()
+            recommend = cols[4].text.strip()
+            dislike   = cols[5].text.strip()
 
+            # 수집한 날짜 데이터가 정해진 범위 안에 있는지 확인
             if start_date <= date <= end_date :
                all_posts.append([name, code, date, title, link, view, recommend, dislike])
             elif date < start_date :
                 stop_flag = True
 
+        # 정해진 날짜를 벗어났으면 while 밖으로
         if stop_flag :
             break
 
+        # 정해진 날짜를 벗어나지 않았으면 다음페이지로
         page += 1
 
+    # 수집하는 드라이버 종료
     driver.quit()
+
+    # 데이터를 데이터프레임화
     postDf = pd.DataFrame(all_posts, columns = ["name", "code", "date", "title", "link", "view", "recommend", "dislike"])
 
     return postDf
 
-# "테이블"에 "데이터프레임"을 저장
+''' ===========================
+    "table"에 "dataFrame"을 저장
+    =========================== '''
 def save_to_DB (table_name, df) :
 
     db = DBManager()
+    # db.DBOpen(
+    #     host   = "localhost",
+    #     dbname = "test",
+    #     id     = "cho",
+    #     pw     = "ezen"
+    # )
     db.DBOpen(
         host   = "localhost",
-        dbname = "test",
-        id     = "cho",
-        pw     = "ezen"
+        dbname = "third_project",
+        id     = "root",
+        pw     = "chogh"
     )
     db.insert_df(table_name, df)
     db.DBClose()
 
-    print(f"{len(df)}개 데이터 저장 완료")
-
-
+#============================================================================================
 
 '''--------실행--------'''
 if __name__ == "__main__" :
 
     list = load_stock_list("./조/stock_list_test.json")
 
-    print(list)
-    print(type(list))
-
+    # datetype = "yyyy.mm.dd"
     start_date = "2025.02.11"
     end_date   = "2025.02.11"
 
@@ -122,7 +140,7 @@ if __name__ == "__main__" :
         df = crawl_discussion(name, code, start_date, end_date)
 
         if not df.empty :
-            save_to_DB("test_table", df)
+            save_to_DB("test", df)
         else :
             print("저장할 수 있는 데이터가 없습니다.")
 
