@@ -1,0 +1,24 @@
+# Python 관련
+py_scripts/__pycache__/
+py_scripts/*.pyc
+py_scripts/*.pyo
+py_scripts/venv/
+py_scripts/.env
+
+# Java 관련
+java-app/bin/
+java-app/target/
+*.class
+*.log
+*.jar
+
+# Eclipse 관련
+java-app/.settings/
+java-app/.project
+java-app/.classpath
+
+# VS Code 관련
+.vscode/
+
+# Windows
+Thumbs.db
