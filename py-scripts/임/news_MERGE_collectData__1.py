@@ -5,13 +5,14 @@ from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
 from datetime import datetime
 from bs4 import BeautifulSoup
-#from DBManager import DBManager
+from DBManager import DBManager
 
 import os
 import time
 import requests
 import pandas as pd
 #import __LSTM.predic as pr
+
 
 # 분석할 종목과 코드 리스트
 list = {
@@ -26,7 +27,6 @@ list = {
 # 현재 날짜와 시간 가져오기
 now = datetime.now()
 '''
-
 
 # 달 설정
 for month in range(8, 11):
@@ -98,8 +98,6 @@ for month in range(8, 11):
         # _________________________get text_________________________
 
             urlList = url_df["링크"]
-            
-            
 
             agent_head = {
                 "User-Agent" : "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36"
@@ -107,12 +105,16 @@ for month in range(8, 11):
 
             # 기사 내용이 들어갈 리스트 생성
             commentlist =[]
+            
+            if len(link_list) == 0 :
+                print(f"{item}에 관한 {current_date_dash} 사용할 수 있는 기사가 없습니다.")
+                continue
 
             for url_item in urlList :
                 print(url_item,"을 탐색합니다")
                 url_item = url_item.replace("article/","article/comment/")
                 #url = url_item
-                url = "https://n.news.naver.com/mnews/article/comment/011/0004449442?sid=101"
+                url = "https://n.news.naver.com/mnews/article/comment/366/0001053512?sid=105"
                 print(f"URL : {url}")
                 
                 # URL 요청 및 HTML 가져오기
@@ -122,7 +124,6 @@ for month in range(8, 11):
                 print("셀레니움에게 주소를 전달합니다")
                 driver.get(url)
                 time.sleep(1)
-                
                 
                     # 더보기 
                 while True :
@@ -144,8 +145,11 @@ for month in range(8, 11):
                 soup   = BeautifulSoup(tmp, "html.parser")
                 print("댓글을 찾습니다")
                 comment = soup.select(".u_cbox_contents")
-                
-                print(type(comment))
+                print("추천의 개수를 찾습니다")
+                recomm = soup.select(".u_cbox_cnt_recomm")
+                print("비추천의 개수를 찾습니다")
+                unrecomm = soup.select(".u_cbox_cnt_unrecomm")
+                title = soup.select_one(".media_end_head_headline")
 
                  #.u_cbox_contents가 없으면 url 삭제후 다음 반복으로 넘어감
                 if comment is None:
@@ -156,80 +160,61 @@ for month in range(8, 11):
                 for co in comment :
                     commentlist.append(co.get_text())
 
-                print(f"lenght : {len(commentlist)}=======================")
-                print(commentlist)
+                print(f"length : {len(commentlist)}=======================")
+                print(f"recomm  length : {len(recomm)}=======================")
+                print(f"unrecomm length : {len(unrecomm)}=======================")
+
+                #데이터 프레임화 ############
+
+
+                # print(totalresult["URL"])
+
+        # _________________________DB insertion_________________________
+
+
+                
+                # 일일데이터를 데이터프레임화
+                print(f"totalresult 데이터프레임화...")
+                totalresult = pd.DataFrame({
+                    "name" : [item]  * len(commentlist) ,
+                    "code" : [code] * len(commentlist)  ,
+                    "date" : [current_date_dash ] * len(commentlist)  ,
+                    "title" : [title ] * len(commentlist)  ,
+                    "URL" : [url] * len(commentlist)  ,
+                    "commentlist" : commentlist,
+                    "recomm" : recomm,
+                    "unrecomm" : unrecomm
+                })
+                print(totalresult)
+
+            # DB 처리
+                db = DBManager()
+                db.DBOpen(
+                    host   = "localhost",
+                    dbname = "third_project",
+                    id     = "root",
+                    pw     = "ezen"
+                )
+
+                print(f"insertion...")
+                db.insert_df("news_comments", totalresult)
+
+                db.DBClose()
                 exit()
-                # 리스트에 추가
-                # commentlist.append(comment_text)
-
-            if len(link_list) == 0 :
-                print(f"{item}에 관한 {current_date_dash} 사용할 수 있는 기사가 없습니다.")
-                continue
-
-            # 데이터 프레임화
-            contents = pd.DataFrame(commentlist, columns = ["기사내용"])
-            print(contents)
-            exit()
 '''
         # _________________________sentiment predict_________________________
 
             # 내부 공백 및 줄바꿈 제거
             contents = contents["기사내용"]
-            contents = contents.replace("\n", "", regex=True)
-            contents = contents.replace("\t", "", regex=True)
-
             # 점수 총합 및 점수 리스트 생성
             sum = 0
             scr_list = []
             avg_score = 0
-
             # 기사마다 감성분석 후 점수를 리스트로 저장
-            for sent in contents:
+            for sent in commentlist:
                 scr = pr.sentiment_predict(sent)
                 scr_list.append(scr)
                 sum += scr
-
+            print(scr_list)
             avg_score = sum / len(link_list)
-
-        # _________________________DB insertion_________________________
-
-            # insert 데이터 확인
-            print(f"len(link_list)    : {len(link_list)}")
-            print(f"len(dic_arealist) : {len(dic_arealist)}")
-            print(f"len(scr_list)     : {len(scr_list)}")
-
-            # 일일데이터를 데이터프레임화
-            print(f"daily_data_table 데이터프레임화...")
-            daily_data_table = pd.DataFrame({
-                "date"  : [current_date_dash] * len(link_list),
-                "name"  : [item] * len(link_list),
-                "code"  : [code] * len(link_list),
-                "url"   : link_list,
-                "score" : scr_list
-            })
-
-            print(f"total_result_table 데이터프레임화...")
-            # 분석결과 데이터를 데이터프레임화
-            total_result_table = pd.DataFrame({
-                "date" : [current_date_dash],
-                "name" : [item],
-                "score": [avg_score],
-                "news_count" : [len(link_list)]
-            })
-
-        # DB 처리
-            db = DBManager()
-            db.DBOpen(
-                host   = "192.168.0.184",
-                dbname = "second_project",
-                id     = "cho",
-                pw     = "ezen"
-            )
-
-            print(f"insertion...")
-            db.insert_df("daily_data", daily_data_table)
-            db.insert_df("total_result", total_result_table)
-
-            db.DBClose()
-
 '''
