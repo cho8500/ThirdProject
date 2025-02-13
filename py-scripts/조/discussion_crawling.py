@@ -75,7 +75,7 @@ def crawl_discussion(name, code, start_date, end_date) :
 
             title     = title_tag.get_text(strip=True)
             date      = cols[0].text.strip()[:10]
-            link      = cols[1].a["href"] if cols[1].a else ""
+            link      = f'https://finance.naver.com{cols[1].a["href"][:48] if cols[1].a else ""}'
             view      = cols[3].text.strip()
             recommend = cols[4].text.strip()
             dislike   = cols[5].text.strip()
@@ -107,18 +107,18 @@ def crawl_discussion(name, code, start_date, end_date) :
 def save_to_DB (table_name, df) :
 
     db = DBManager()
+    db.DBOpen(
+        host   = "192.168.0.184",
+        dbname = "third_project",
+        id     = "cho",
+        pw     = "ezen"
+    )
     # db.DBOpen(
     #     host   = "localhost",
-    #     dbname = "test",
-    #     id     = "cho",
-    #     pw     = "ezen"
+    #     dbname = "third_project",
+    #     id     = "root",
+    #     pw     = "chogh"
     # )
-    db.DBOpen(
-        host   = "localhost",
-        dbname = "third_project",
-        id     = "root",
-        pw     = "chogh"
-    )
     db.insert_df(table_name, df)
     db.DBClose()
 
@@ -137,10 +137,12 @@ if __name__ == "__main__" :
 
         print(f"[{name}] {start_date} ~ {end_date} 크롤링...")
 
+        dbname = "test"
+
         df = crawl_discussion(name, code, start_date, end_date)
 
         if not df.empty :
-            save_to_DB("test", df)
+            save_to_DB(dbname, df)
         else :
             print("저장할 수 있는 데이터가 없습니다.")
 
