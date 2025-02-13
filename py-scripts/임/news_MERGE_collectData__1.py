@@ -106,7 +106,7 @@ for month in range(8, 11):
             }
 
             # 기사 내용이 들어갈 리스트 생성
-            dic_arealist =[]
+            commentlist =[]
 
             for url_item in urlList :
                 print(url_item,"을 탐색합니다")
@@ -128,7 +128,7 @@ for month in range(8, 11):
                 while True :
                     try:
                         print("더보기 버튼을 찾습니다")
-                        morebutton = driver.find_element(By.CSS_SELECTOR,".u_cbox_page_more")
+                        morebutton = driver.find_element(By.CSS_SELECTOR,".u_cbox_page_more") # 찾기
                         morebutton.click()
                         time.sleep(1)
                     except Exception as e:
@@ -145,39 +145,30 @@ for month in range(8, 11):
                 print("댓글을 찾습니다")
                 comment = soup.select(".u_cbox_contents")
                 
-                print(comment)
-                
-                exit()
-                
-                #.u_cbox_contents가 없으면 url 삭제후 넘어감
-                
-                
-                exit()    
-                # 기사 영역 선택
-                dic_area = soup.select_one("#dic_area")
+                print(type(comment))
 
-                # dic_area가 없으면 url을 삭제하고 다음 반복으로 넘어감
-                if dic_area is None:
+                 #.u_cbox_contents가 없으면 url 삭제후 다음 반복으로 넘어감
+                if comment is None:
                     link_list.remove(url_item)
                     continue
+                
+                # 댓글 내용 가져오기 (공백 제거)
+                for co in comment :
+                    commentlist.append(co.get_text())
 
-                # 사진 설명 제거 (있을 경우)
-                img_desc = dic_area.select_one("span.end_photo_org")
-                if img_desc:
-                    img_desc.decompose()
-
-                # 기사 내용 가져오기 (공백 제거)
-                dic_area_text = dic_area.get_text().strip()
-
+                print(f"lenght : {len(commentlist)}=======================")
+                print(commentlist)
+                exit()
                 # 리스트에 추가
-                dic_arealist.append(dic_area_text)
+                # commentlist.append(comment_text)
 
             if len(link_list) == 0 :
                 print(f"{item}에 관한 {current_date_dash} 사용할 수 있는 기사가 없습니다.")
                 continue
 
             # 데이터 프레임화
-            contents = pd.DataFrame(dic_arealist, columns = ["기사내용"])
+            contents = pd.DataFrame(commentlist, columns = ["기사내용"])
+            print(contents)
             exit()
 '''
         # _________________________sentiment predict_________________________
