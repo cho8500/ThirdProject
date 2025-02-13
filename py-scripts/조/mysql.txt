@@ -1,0 +1,10 @@
+create table test (
+    name varchar(50),
+    code varchar(10),
+    date date,
+    title text,
+    link text,
+    view int,
+    recommend int,
+    dislike int
+);
