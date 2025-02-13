@@ -28,10 +28,13 @@ class DBManager :
                 db = dbname,
                 charset='utf8'
             )
+            self.cursor = self.con.cursor()
             return True
 
         except Exception as e :
             print(f"[DB 연결 오류] {e}")
+            self.con    = None
+            self.cursor = None
             return False
 
     # DB 종료
@@ -45,12 +48,17 @@ class DBManager :
     SQL 실행 : INSERTION, UPDATE, DELETE
     ================================='''
     # INSERT, UPDATE, DELETE
-    def execute(self, sql) :
+    def execute(self, sql, values=None) :
         print(f"SQL : {sql}")
 
         try :
             self.cursor = self.con.cursor()
-            self.cursor.execute(sql)
+
+            if values :
+                self.cursor.execute(sql, values)
+            else :
+                self.cursor.execute(sql)
+
             self.con.commit()
             return True
 
@@ -94,12 +102,17 @@ class DBManager :
     SQL 실행 : SELECT
     =============='''
     # SELECT
-    def executeQuery(self, sql) :
+    def executeQuery(self, sql, values=None) :
         print(f"SQL : {sql}")
 
         try :
             self.cursor = self.con.cursor()
-            self.cursor.execute(sql)
+
+            if values :
+                self.cursor.execute(sql, values)
+            else :
+                self.cursor.execute(sql)
+
             self.data = self.cursor.fetchall()
             return True
 
@@ -113,10 +126,9 @@ class DBManager :
                 self.cursor.close()
 
     # SELECT 결과를 DF로 반환
-    def fetch_DF(self, sql) :
-        print(f"SQL : {sql}")
+    def fetch_DF(self, sql, values=None) :
 
-        if self.executeQuery(sql) :
+        if self.executeQuery(sql, values) :
             column = [desc[0] for desc in self.cursor.description]
             df     = pd.DataFrame(self.data, columns=column)
             return df
