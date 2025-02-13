@@ -4,15 +4,22 @@ import numpy
 import pandas as pd
 
 class DBManager :
-    # 필드멤버 선언
 
+    '''=========
+    필드멤버 선언
+    ========='''
     # 생성자
     def __init__(self) :
         self.con    = None
         self.cursor = None
+        self.data   = []
 
-    # DB 연결 메소드
+    '''==========
+    DB연결 및 종료
+    =========='''
+    # DB 연결
     def DBOpen(self, host, dbname, id, pw) :
+
         try :
             self.con = pymysql.connect(
                 host = host,
@@ -22,48 +29,47 @@ class DBManager :
                 charset='utf8'
             )
             return True
+
         except Exception as e :
-            print(e)
+            print(f"[DB 연결 오류] {e}")
             return False
 
-    # DB 연결 종료 메소드
+    # DB 종료
     def DBClose(self) :
-        self.con.close()
 
-    # insert, update, delete 처리하는 메소드
+        if self.con :
+            self.con.close()
+            self.con = None
+
+    '''=================================
+    SQL 실행 : INSERTION, UPDATE, DELETE
+    ================================='''
+    # INSERT, UPDATE, DELETE
     def execute(self, sql) :
-        print(f"sql : {sql}")
+        print(f"SQL : {sql}")
+
         try :
             self.cursor = self.con.cursor()
             self.cursor.execute(sql)
             self.con.commit()
-            self.cursor.close()
             return True
+
         except Exception as e :
-            print(e)
+            print(f"[SQL 실행오류] {e}")
             self.con.rollback()
-            self.cursor.close()
             return False
 
-    # select 처리 메소드
-    def executeQuery(self, sql) :
-        print(f"sql : {sql}")
-        try :
-            self.cursor = self.con.cursor()
-            self.cursor.execute(sql)
-            # 모든 데이터를 한번에 가져옵니다
-            self.data = self.cursor.fetchall()
-            return True
-        except Exception as e :
-            print(e)
-            return False
+        finally :
+            if self.cursor :
+                self.cursor.close()
 
+    # INSERT DF
     def insert_df(self, table_name, df) :
 
         # 컬럼명 및 VALUES(%s, %s, ...) 생성
         columns = ", ".join(df.columns)
         values  = ", ".join(["%s"] * len(df.columns))
-        sql     = f"insert into {table_name} ({columns}) values ({values})"
+        sql     = f"INSERT INTO {table_name} ({columns}) VALUES ({values})"
 
         # DataFrame을 튜플 리스트로 변환
         data = [tuple(row) for row in df.to_numpy()]
@@ -72,54 +78,96 @@ class DBManager :
             self.cursor = self.con.cursor()
             self.cursor.executemany(sql, data)  # 여러 개의 데이터를 실행
             self.con.commit()
-            self.cursor.close()
             print(f"{len(data)}개의 데이터가 성공적으로 처리되었습니다.")
-            print("="*50)
             return True
 
         except Exception as e:
-            print(f"데이터 처리 중 오류 발생: {e}")
+            print(f"[데이터 처리 오류] {e}")
             self.con.rollback()
             return False
 
-    # select 닫기 메소드
-    def CloseQuery(self) :
-        self.cursor.close()
+        finally :
+            if self.cursor :
+                self.cursor.close()
 
-    # get Total 메소드
+    '''==============
+    SQL 실행 : SELECT
+    =============='''
+    # SELECT
+    def executeQuery(self, sql) :
+        print(f"SQL : {sql}")
+
+        try :
+            self.cursor = self.con.cursor()
+            self.cursor.execute(sql)
+            self.data = self.cursor.fetchall()
+            return True
+
+        except Exception as e :
+            print(f"[SQL 조회오류] {e}")
+            self.data = []
+            return False
+
+        finally :
+            if self.cursor :
+                self.cursor.close()
+
+    # SELECT 결과를 DF로 반환
+    def fetch_DF(self, sql) :
+        print(f"SQL : {sql}")
+
+        if self.executeQuery(sql) :
+            column = [desc[0] for desc in self.cursor.description]
+            df     = pd.DataFrame(self.data, columns=column)
+            return df
+
+        return None
+
+    # SELECT 데이터의 개수를 반환
     def GetTotal(self) :
         return len(self.data)
 
-    # 컬럼 이름으로 컬럼 값 가져오는 메소드
+    # SELECT 데이터의 컬럼 이름으로 컬럼 값 가져오기
     # 데이터의 인덱스 번호가 필요
     def GetValue(self, index, column) :
 
-        # 커서 객체가 없거나, 가져온 데이터가 없으면
-        if not self.cursor or not self.data:
+        try :
+            # 커서 객체가 없거나, 가져온 데이터가 없으면
+            if not self.cursor or not self.data:
+                return "cursor 객체 없음"
+
+            # 인덱스가 범위를 벗어나면
+            if index < 0 or index >= len(self.data) :
+                return "인덱스 범위 벗어남"
+
+            # 컬럼 이름이 빈문자열로 넘어오면
+            if column == None or column == "" :
+                return "column 이름 또는 타입 오류"
+
+            # 컬럼 인덱스를 dict로 저장
+            column_map = {item[0] : idx for idx, item in enumerate(self.cursor.description)}
+
+            # 해당 컬럼이 있으면 데이터 반환, 없으면 빈문자
+            if column in column_map :
+                return self.data[index][column_map[column]]
+            else :
+                return ""
+
+        except Exception as e :
+            print(f"[GetValue 오류] {e}")
             return ""
 
-        # 인덱스가 범위를 벗어나면
-        if index < 0 or index >= len(self.data) :
-            return ""
 
-        # 컬럼 이름이 빈문자열로 넘어오면
-        if column == None or column == "" :
-            return ""
 
-        # 컬럼 번호를 세기
-        column_count = -1
+    '''======================================================
+    [불용처리]
 
-        # 컬럼 이름을 차례대로 가져오기
-        for item in self.cursor.description :
-            column_count += 1
-            name = item[0]
-            # 원하는 컬럼 이름을 찾음
-            if column == name :
-                # self.data[인덱스번호][컬럼번호]
-                return self.data[index][column_count]
-        return ""   # 컬럼 이름이 없으면
+    # SELECT 닫기 : 각 함수 안으로 포함
+    def CloseQuery(self) :
+        self.cursor.close()
 
-    # 전체 데이터를 df으로 받아오는 메소드
+    # SELECT 한 전체 데이터를 df으로 받아오는 메소드
+    # executeQuery -> GetDf 세트로 사용 : fetchDF() 함수로 통합
     def GetDf(self) :
         columns = []
         for item in self.cursor.description :
@@ -127,3 +175,4 @@ class DBManager :
         df = pd.DataFrame(self.data)
         df.columns = columns
         return df
+    ======================================================='''
