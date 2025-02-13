@@ -5,18 +5,18 @@ import pandas as pd
 
 class DBManager :
 
-    '''=========
-    필드멤버 선언
-    ========='''
+    '''============
+       필드멤버 선언
+       ============'''
     # 생성자
     def __init__(self) :
         self.con    = None
         self.cursor = None
         self.data   = []
 
-    '''==========
-    DB연결 및 종료
-    =========='''
+    '''=============
+       DB연결 및 종료
+       ============='''
     # DB 연결
     def DBOpen(self, host, dbname, id, pw) :
 
@@ -44,9 +44,9 @@ class DBManager :
             self.con.close()
             self.con = None
 
-    '''=================================
-    SQL 실행 : INSERTION, UPDATE, DELETE
-    ================================='''
+    '''====================================
+       SQL 실행 : INSERTION, UPDATE, DELETE
+       ===================================='''
     # INSERT, UPDATE, DELETE
     def execute(self, sql, values=None) :
         print(f"SQL : {sql}")
@@ -98,9 +98,9 @@ class DBManager :
             if self.cursor :
                 self.cursor.close()
 
-    '''==============
-    SQL 실행 : SELECT
-    =============='''
+    '''=================
+       SQL 실행 : SELECT
+       ================='''
     # SELECT
     def executeQuery(self, sql, values=None) :
         print(f"SQL : {sql}")
