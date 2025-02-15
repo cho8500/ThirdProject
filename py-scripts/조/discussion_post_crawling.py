@@ -15,14 +15,14 @@ def fetch_URLs() :
 
     db = DBManager()
     db.DBOpen(
-        # host   = "192.168.0.184",
-        # dbname = "third_project",
-        # id     = "cho",
-        # pw     = "ezen"
-        host   = "localhost",
+        host   = "192.168.0.184",
         dbname = "third_project",
-        id     = "root",
-        pw     = "chogh"
+        id     = "cho",
+        pw     = "ezen"
+        # host   = "localhost",
+        # dbname = "third_project",
+        # id     = "root",
+        # pw     = "chogh"
     )
 
     sql = "SELECT name, code, date, link FROM disc_data WHERE content = 'F'"
@@ -72,14 +72,14 @@ def process_content() :
 
     db = DBManager()
     db.DBOpen(
-        # host   = "192.168.0.184",
-        # dbname = "third_project",
-        # id     = "cho",
-        # pw     = "ezen"
-        host   = "localhost",
+        host   = "192.168.0.184",
         dbname = "third_project",
-        id     = "root",
-        pw     = "chogh"
+        id     = "cho",
+        pw     = "ezen"
+        # host   = "localhost",
+        # dbname = "third_project",
+        # id     = "root",
+        # pw     = "chogh"
     )
 
 
@@ -90,7 +90,7 @@ def process_content() :
     result      = []
     failed_urls = []
 
-    # ThreadPoolExecutor : 최대 5개 스레드 병렬 실행
+    # ThreadPoolExecutor : 최대 10개 스레드 병렬 실행
     with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor :
 
         for _, row in urls_df.iterrows() :
@@ -135,7 +135,7 @@ def process_content() :
         db.cursor.executemany(sql, [(row[3],) for row in result])
         db.con.commit()
 
-        print(f"[INFO] {len(result)}개의 데이터 저장 완료")
+        print(f"[INFO] {len(result)}개 데이터 저장 완료")
 
     if failed_urls :
         print(f"[ERROR] {len(failed_urls)}개의 개시글 크롤링 실패")

@@ -108,14 +108,14 @@ def save_to_DB (table_name, df) :
 
     db = DBManager()
     db.DBOpen(
-        # host   = "192.168.0.184",
-        # dbname = "third_project",
-        # id     = "cho",
-        # pw     = "ezen"
-        host   = "localhost",
+        host   = "192.168.0.184",
         dbname = "third_project",
-        id     = "root",
-        pw     = "chogh"
+        id     = "cho",
+        pw     = "ezen"
+        # host   = "localhost",
+        # dbname = "third_project",
+        # id     = "root",
+        # pw     = "chogh"
     )
     db.insert_df(table_name, df)
     db.DBClose()

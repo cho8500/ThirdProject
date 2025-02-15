@@ -19,6 +19,7 @@ CREATE TABLE disc_analysis (
     analysis   VARCHAR(5) DEFAULT 'F',
     row_cont   TEXT,
     prc_cont   TEXT,
+    sent_type  VARCHAR(20),
     sent_scr   FLOAT
 );
 
