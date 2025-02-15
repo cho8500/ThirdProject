@@ -3,6 +3,16 @@
 Python 3.8 이상에서만 사용 가능
 
 winget install -e --id Rustlang.Rustup
+오류 발생시
+[window powershell 관리자 권한 실행]
+    winget source remove msstore
+    winget source remove winget
+
+    winget source add --name winget https://cdn.winget.microsoft.com/cache
+    winget source add --name msstore https://storeedgefd.dsx.mp.microsoft.com/v9.0
+
+    winget source update
+    (PC재부팅 후) winget install -e --id Rustlang.Rustup
 
 rustc --version
 cargo --version

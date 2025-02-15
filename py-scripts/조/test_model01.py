@@ -23,10 +23,14 @@ model.eval()
 # DB 불러오기
 db = DBManager()
 db.DBOpen(
-    host   = "192.168.0.184",
+    # host   = "192.168.0.184",
+    # dbname = "third_project",
+    # id     = "cho",
+    # pw     = "ezen"
+    host   = "localhost",
     dbname = "third_project",
-    id     = "cho",
-    pw     = "ezen"
+    id     = "root",
+    pw     = "chogh"
 )
 
 sql = "SELECT id, row_cont FROM disc_analysis WHERE analysis = 'F';"
