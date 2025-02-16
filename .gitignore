@@ -4,7 +4,7 @@ __pycache__/
 *.pyo
 venv/
 .env
-.json
+py-scripts/조/data_set/
 
 # Java 관련
 java-app/bin/
