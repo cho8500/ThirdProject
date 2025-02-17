@@ -17,7 +17,7 @@ def fetch_cont() :
         # pw     = "chogh"
     )
 
-    sql = "SELECT id, comment FROM discussion WHERE analysis = 'T'"
+    sql = "SELECT id, comment FROM discussion WHERE analysis = 'F'"
 
     df = db.fetch_DF(sql)
     db.DBClose()

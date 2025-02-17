@@ -42,6 +42,8 @@ def crawl_comment(url) :
     options = webdriver.ChromeOptions()
     options.add_argument("--headless")
     options.add_argument("--window-size=1920x1080")
+    options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.51 Safari/537.36")
+
     driver  = webdriver.Chrome(options = options)
 
     comment = None
@@ -124,7 +126,7 @@ def process_comment() :
     if result :
         print(f"[INFO] {len(result)}개 데이터 저장 중...")
 
-        # 크롤링한 데이터 INSERT
+        # 크롤링한 데이터 UDATE
         sql = """
             UPDATE discussion
             SET comment = %s
