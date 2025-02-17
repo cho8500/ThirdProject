@@ -1,33 +1,37 @@
-create database second_project;
-use second_project;
-
-create table stock(
-    name varchar(100) not null primary key,
-    code varchar(10) not null
+CREATE TABLE stocks(
+    name VARCHAR(50) PRIMARY KEY,
+    code VARCHAR(10)
 );
 
-create table daily_data(
-    id int not null primary key auto_increment,
-    date date default (current_date),
-    name varchar(100) not null,
-    code varchar(10) not null,
-    url varchar(255) not null,
-    score varchar(10) not null,
-    foreign key(name) references stock(name)
+CREATE TABLE news_comments(
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    date DATE,
+    name VARCHAR(50),
+    code VARCHAR(10),
+    title TEXT,
+    link TEXT,
+    up INT,
+    down INT,
+    comment TEXT,
+    analysis VARCHAR(10) DEFAULT 'F',
+    sent_type VARCHAR(20),
+    sent_score FLOAT DEFAULT 0,
+    FOREIGN KEY(name) REFERENCES stocks(name)
 );
 
- create table total_result(
-    date date default (current_date),
-    name varchar(100) not null,
-    score varchar(10),
-    news_count varchar(10),
-    foreign key(name) references stock(name)    
-);
-
-create table sise_table(
-    date date default (current_date),
-    name varchar(100) not null,
-    code varchar(10) not null,
-    sise varchar(10) not null,
-    foreign key(name) references stock(name)
+CREATE TABLE discussion(
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    date DATE,
+    name VARCHAR(50),
+    code VARCHAR(10),
+    title TEXT,
+    link TEXT,
+    up INT,
+    down INT,
+    view INT,
+    comment TEXT,
+    analysis VARCHAR(10) DEFAULT 'F',
+    sent_type VARCHAR(20),
+    sent_score FLOAT DEFAULT 0,
+    FOREIGN KEY(name) REFERENCES stocks(name)
 );
