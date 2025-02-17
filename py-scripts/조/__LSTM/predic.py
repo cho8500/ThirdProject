@@ -24,8 +24,8 @@ stopwords = ['의','가','이','은','들','는','좀','잘','걍','과','도','
 # =====================================================================================================
 # 2. 모델 및 word_index 로드
 
-model_path = "./__LSTM/best_model.h5"      # 이미 학습된 모델 파일
-word_index_path = "./__LSTM/wordIndex.json" # 학습 시 사용한 word_index (Tokenizer) 정보
+model_path = "./조/__LSTM/best_model.h5"      # 이미 학습된 모델 파일
+word_index_path = "./조/__LSTM/wordIndex.json" # 학습 시 사용한 word_index (Tokenizer) 정보
 
 print("[INFO] 모델 및 word_index 로딩 중...")
 

@@ -38,6 +38,8 @@ CREATE TABLE stocks(
     code VARCHAR(10)
 );
 
+0217 수정 ==========================================================================================
+
 CREATE TABLE news_comments(
     id INT PRIMARY KEY AUTO_INCREMENT,
     date DATE,

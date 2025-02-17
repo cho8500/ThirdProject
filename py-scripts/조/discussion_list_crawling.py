@@ -73,16 +73,16 @@ def crawl_discussion(name, code, start_date, end_date) :
             for span in title_tag.find_all("span") :
                 span.decompose()
 
-            title     = title_tag.get_text(strip=True)
-            date      = cols[0].text.strip()[:10]
-            link      = f'https://finance.naver.com{cols[1].a["href"][:48] if cols[1].a else ""}'
-            view      = cols[3].text.strip()
-            recommend = cols[4].text.strip()
-            dislike   = cols[5].text.strip()
+            title = title_tag.get_text(strip=True)
+            date  = cols[0].text.strip()[:10]
+            link  = f'https://finance.naver.com{cols[1].a["href"][:48] if cols[1].a else ""}'
+            view  = cols[3].text.strip()
+            up    = cols[4].text.strip()
+            down  = cols[5].text.strip()
 
             # 수집한 날짜 데이터가 정해진 범위 안에 있는지 확인
             if start_date <= date <= end_date :
-               all_posts.append([name, code, date, title, link, view, recommend, dislike])
+               all_posts.append([name, code, date, title, link, view, up, down])
             elif date < start_date :
                 stop_flag = True
 
@@ -97,7 +97,7 @@ def crawl_discussion(name, code, start_date, end_date) :
     driver.quit()
 
     # 데이터를 데이터프레임화
-    postDf = pd.DataFrame(all_posts, columns = ["name", "code", "date", "title", "link", "view", "recommend", "dislike"])
+    postDf = pd.DataFrame(all_posts, columns = ["name", "code", "date", "title", "link", "view", "up", "down"])
 
     return postDf
 
@@ -135,7 +135,7 @@ if __name__ == "__main__" :
 
         print(f"[{name}] {start_date} ~ {end_date} 크롤링...")
 
-        table_name = "disc_data"
+        table_name = "discussion"
 
         df = crawl_discussion(name, code, start_date, end_date)
 

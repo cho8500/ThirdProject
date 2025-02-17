@@ -17,7 +17,7 @@ def fetch_cont() :
         # pw     = "chogh"
     )
 
-    sql = "SELECT id, row_cont FROM disc_analysis WHERE analysis = 'F'"
+    sql = "SELECT id, comment FROM discussion WHERE analysis = 'T'"
 
     df = db.fetch_DF(sql)
     db.DBClose()
@@ -27,17 +27,17 @@ def fetch_cont() :
 # 데이터 전처리
 def preprocessing(df) :
 
-    df["row_cont"] = df["row_cont"].str.replace("[^ㄱ-ㅎㅏ-ㅣ가-힣0-9 ]", "", regex=True)
-    df["row_cont"] = df["row_cont"].str.replace("\\s+", " ", regex=True)
-    df.dropna(subset=["row_cont"], inplace=True)
+    df["comment"] = df["comment"].str.replace("[^ㄱ-ㅎㅏ-ㅣ가-힣0-9 ]", "", regex=True)
+    df["comment"] = df["comment"].str.replace("\\s+", " ", regex=True)
+    df.dropna(subset=["comment"], inplace=True)
 
     return df
 
 # 감성분석 실행
 def sent_analysis(df) :
 
-    df["sent_scr"]  = df["row_cont"].apply(sentiment_predict)
-    df["sent_type"] = df["sent_scr"].apply(lambda x : "positive" if x > 55 else ("negative" if x < 45 else "neutral"))
+    df["sent_score"] = df["comment"].apply(sentiment_predict)
+    df["sent_type"]  = df["sent_score"].apply(lambda x : "positive" if x > 55 else ("negative" if x < 45 else "neutral"))
 
     return df
 
@@ -58,11 +58,11 @@ def save_to_DB(df) :
 
     for _, row in df.iterrows():
         sql = """
-            UPDATE disc_analysis
-            SET prc_cont = %s, sent_type = %s, sent_scr = %s, analysis = 'T'
+            UPDATE discussion
+            SET sent_type = %s, sent_score = FORMAT(%s, 2), analysis = 'T'
             WHERE id = %s;
         """
-        values = (row["row_cont"], row["sent_type"], row["sent_scr"], row["id"])
+        values = (row["sent_type"], row["sent_score"], row["id"])
         db.execute(sql, values)
 
     db.DBClose()
