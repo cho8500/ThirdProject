@@ -17,6 +17,7 @@ import pandas as pd
 import __LSTM.predic as pr
 import tensorflow as tf
 
+update = "update "
 # 분석할 종목과 코드 리스트
 list = {
     "삼성전자" : "005930",
@@ -169,7 +170,10 @@ for month in range(8, 11):
                 
                 # 댓글 내용 가져오기 (공백 제거)
                 for co in comment :
-                    commentlist.append(co.get_text())
+                    co = co.text
+                    if co is not None:
+                        co = co.replace("'", "").replace("\"", "") #따옴표 제거 
+                        commentlist.append(co)
 
         # _________________________DB insertion_________________________
 
@@ -212,18 +216,22 @@ for month in range(8, 11):
                     "code"      : [code]                * len(commentlist)  ,
                     "title"     : [title]               * len(commentlist)  ,
                     "link"      : [url]                 * len(commentlist)  ,
-                    "like"      : recommlist,
-                    "dislike"   : unrecommlist,
+                    "up"      : recommlist,
+                    "down"   : unrecommlist,
                     "comment"   : commentlist
                 })
                 #print(totalresult)
-                print(totalresult["comment"], totalresult["score"] )
+                #print(totalresult["comment"], totalresult["score"] )
                 
                 resultupdate = pd.DataFrame({
                     "analysis"  : "T",
+                    "evaluation": eval_list,
                     "score"     : scr_list,
-                    "evaluation": eval_list
+                    "comment"   : commentlist
                 })
+                
+                
+                
             # DB 처리
                 db = DBManager()
                 db.DBOpen(
@@ -235,6 +243,16 @@ for month in range(8, 11):
 
                 print(f"insertion...")
                 db.insert_df("news_comments", totalresult)
+                print("totalresult DB에 입력 성공!")
+                
+                #sql = f"update news_comments set analysis = 'T', sent_type = '{resultupdate['evaluation']}', sent_score = {resultupdate['score']} where comment = '{resultupdate['comment']}'"
+                #db.executeQuery(sql)
+                
+                # resultupdate 데이터프레임을 사용하여 업데이트 작업 수행
+                if db.update_df(resultupdate):
+                    print("resultupdate DB에 갱신 성공!")
+                else:
+                    print("업데이트 중 오류가 발생했습니다.")
 
                 db.DBClose()
                 exit()
