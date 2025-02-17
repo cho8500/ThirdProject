@@ -33,40 +33,42 @@ LEFT JOIN disc_analysis a
 ON d.link = a.link
 WHERE a.link IS NULL;
 
+0217 수정 ==========================================================================================
+
 CREATE TABLE stocks(
-    name VARCHAR(50) PRIMARY KEY,
-    code VARCHAR(10)
+    name VARCHAR(50) PRIMARY KEY COMMENT 'stock name',
+    code VARCHAR(10) COMMENT 'stock code'
 );
 
 CREATE TABLE news_comments(
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    date DATE,
-    name VARCHAR(50),
-    code VARCHAR(10),
-    title TEXT,
-    link TEXT,
-    up INT,
-    down INT,
-    comment TEXT,
-    analysis VARCHAR(10) DEFAULT 'F',
-    sent_type VARCHAR(20),
-    sent_score FLOAT DEFAULT 0,
+    id INT PRIMARY KEY AUTO_INCREMENT COMMENT 'id',
+    date DATE COMMENT 'news date',
+    name VARCHAR(50) COMMENT 'stock name',
+    code VARCHAR(10) COMMENT 'stock code',
+    title TEXT COMMENT 'news title',
+    link TEXT COMMENT 'news link',
+    up INT COMMENT 'like',
+    down INT COMMENT 'dislike',
+    comment TEXT COMMENT 'news comments',
+    analysis VARCHAR(10) DEFAULT 'F' COMMENT 'whether analysis',
+    sent_type VARCHAR(20) COMMENT 'positive or negative or neutral',
+    sent_score FLOAT DEFAULT 0 COMMENT '0 ~ 100',
     FOREIGN KEY(name) REFERENCES stocks(name)
 );
 
 CREATE TABLE discussion(
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    date DATE,
-    name VARCHAR(50),
-    code VARCHAR(10),
-    title TEXT,
-    link TEXT,
-    up INT,
-    down INT,
-    view INT,
-    comment TEXT,
-    analysis VARCHAR(10) DEFAULT 'F',
-    sent_type VARCHAR(20),
-    sent_score FLOAT DEFAULT 0,
+    id INT PRIMARY KEY AUTO_INCREMENT COMMENT 'id',
+    date DATE COMMENT 'board date',
+    name VARCHAR(50) COMMENT 'stock name',
+    code VARCHAR(10) COMMENT 'stock code',
+    title TEXT COMMENT 'board title',
+    link TEXT COMMENT 'board link',
+    up INT COMMENT 'like',
+    down INT COMMENT 'dislike',
+    view INT COMMENT 'views',
+    comment TEXT COMMENT 'news comments',
+    analysis VARCHAR(10) DEFAULT 'F' COMMENT 'whether analysis',
+    sent_type VARCHAR(20) COMMENT 'positive or negative or neutral',
+    sent_score FLOAT DEFAULT 0 COMMENT '0 ~ 100',
     FOREIGN KEY(name) REFERENCES stocks(name)
 );

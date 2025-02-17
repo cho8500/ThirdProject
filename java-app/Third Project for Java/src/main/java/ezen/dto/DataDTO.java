@@ -6,7 +6,7 @@ import java.util.ArrayList;
 
 /**
  * 작성자 : 조강희
- * 작성일 : 2025.02.07
+ * 작성일 : 2025.02.17
  * 하이차트를 그리기 위해 받아온 데이터를 처리할 DTO
  */
 
@@ -51,8 +51,6 @@ public class DataDTO extends DbManager
 			vo.setDate(this.getString("date"));
 			vo.setName(this.getString("name"));
 			vo.setCode(this.getString("code"));
-			vo.setSise(this.getString("sise"));
-			vo.setScore(this.getString("score"));
 			
 			data_list.add(vo);
 		}
@@ -85,8 +83,6 @@ public class DataDTO extends DbManager
 			vo.setDate(this.getString("date"));
 			vo.setName(this.getString("name"));
 			vo.setCode(this.getString("code"));
-			vo.setUrl(this.getString("url"));
-			vo.setScore(this.getString("score"));
 			
 			url_list.add(vo);
 		}

@@ -29,11 +29,11 @@ public class DbManager
 //	Database connection
 	public void dbConnect()
 	{
-		String url = "jdbc:mysql://192.168.0.184:3306/second_project";
+		String url = "jdbc:mysql://192.168.0.184:3306/third_project";
 		String id  = "cho";
 		String pw  = "ezen";
 		
-//		String url = "jdbc:mysql://localhost:3306/second_project";
+//		String url = "jdbc:mysql://localhost:3306/third_project";
 //		String id  = "root";
 //		String pw  = "chogh";
 

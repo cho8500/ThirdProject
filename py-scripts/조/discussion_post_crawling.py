@@ -27,7 +27,7 @@ def fetch_URLs() :
         # pw     = "chogh"
     )
 
-    sql = "SELECT name, code, date, link FROM disc_data WHERE content = 'F'"
+    sql = "SELECT id, link FROM discussion WHERE comment IS NULL"
 
     df = db.fetch_DF(sql)
     db.DBClose()
@@ -35,16 +35,18 @@ def fetch_URLs() :
     return df
 
 '''=====================================
-   게시글 내용을 크롤링 하고 CONTENT를 반환
+   게시글 내용을 크롤링 하고 COMMENT를 반환
    ====================================='''
-def crawl_content(url) :
+def crawl_comment(url) :
 
     options = webdriver.ChromeOptions()
     options.add_argument("--headless")
     options.add_argument("--window-size=1920x1080")
+    options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.51 Safari/537.36")
+
     driver  = webdriver.Chrome(options = options)
 
-    content = None
+    comment = None
 
     try :
         print(f"[크롤링 시작] {url}")
@@ -52,10 +54,10 @@ def crawl_content(url) :
         driver.get(url)
         WAIT(driver, 10).until(EC.presence_of_all_elements_located((By.CSS_SELECTOR, ".view_se")))
         soup        = BeautifulSoup(driver.page_source, "html.parser")
-        content_div = soup.select_one(".view_se")
+        comment_div = soup.select_one(".view_se")
 
-        if content_div :
-            content = " ".join(content_div.get_text(strip=True).replace("\n", " ").split())
+        if comment_div :
+            comment = " ".join(comment_div.get_text(strip=True).replace("\n", " ").split())
 
     except Exception as e :
         print(f"[크롤링 오류] {e}")
@@ -63,12 +65,12 @@ def crawl_content(url) :
     finally :
         driver.quit()
 
-    return content
+    return comment
 
 '''============================
-   crawl_content 실행 및 DB 저장
+   crawl_comment 실행 및 DB 저장
    ============================'''
-def process_content() :
+def process_comment() :
 
     urls_df = fetch_URLs()
 
@@ -88,7 +90,6 @@ def process_content() :
         # pw     = "chogh"
     )
 
-
     print(f"[INFO] {len(urls_df)}개 게시글 크롤링...")
 
     # URL 저장 dict, 결과 저장 list 생성
@@ -100,7 +101,7 @@ def process_content() :
     with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor :
 
         for _, row in urls_df.iterrows() :
-            future = executor.submit(crawl_content, row["link"])
+            future = executor.submit(crawl_comment, row["link"])
             urls[future] = row
 
         for future in concurrent.futures.as_completed(urls) :
@@ -108,15 +109,12 @@ def process_content() :
             row = urls[future]
 
             try :
-                content = future.result()
+                comment = future.result()
 
-                if content :
+                if comment :
                     result.append((
-                        row["date"],
-                        row["name"],
-                        row["code"],
-                        row["link"],
-                        content
+                        comment,
+                        row["id"]
                     ))
                 else :
                     failed_urls.append(row["link"])
@@ -128,17 +126,13 @@ def process_content() :
     if result :
         print(f"[INFO] {len(result)}개 데이터 저장 중...")
 
-        # 크롤링한 데이터 INSERT
+        # 크롤링한 데이터 UDATE
         sql = """
-            INSERT INTO disc_analysis (date, name, code, link, row_cont)
-            VALUES (%s, %s, %s, %s, %s)
+            UPDATE discussion
+            SET comment = %s
+            WHERE id = %s;
         """
         db.cursor.executemany(sql, result)
-        db.con.commit()
-
-        # disc_data content 컬럼 UPDATE
-        sql = "UPDATE disc_data SET content = 'T' WHERE link = %s"
-        db.cursor.executemany(sql, [(row[3],) for row in result])
         db.con.commit()
 
         print(f"[INFO] {len(result)}개 데이터 저장 완료")
@@ -154,4 +148,4 @@ def process_content() :
 
 '''--------실행--------'''
 if __name__ == "__main__" :
-    process_content()
+    process_comment()
