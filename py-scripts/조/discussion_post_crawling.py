@@ -10,7 +10,9 @@ from selenium.webdriver.support    import expected_conditions as EC
 
 from DBManager import DBManager
 
-# DB에서 크롤링 할 URL 가져오기
+'''===========================
+   DB에서 크롤링 할 URL 가져오기
+   ==========================='''
 def fetch_URLs() :
 
     db = DBManager()
@@ -32,7 +34,9 @@ def fetch_URLs() :
 
     return df
 
-# 게시글 내용을 크롤링 하고 CONTENT를 반환
+'''=====================================
+   게시글 내용을 크롤링 하고 CONTENT를 반환
+   ====================================='''
 def crawl_content(url) :
 
     options = webdriver.ChromeOptions()
@@ -61,7 +65,9 @@ def crawl_content(url) :
 
     return content
 
-# crawl_content 실행 및 DB 저장
+'''============================
+   crawl_content 실행 및 DB 저장
+   ============================'''
 def process_content() :
 
     urls_df = fetch_URLs()
