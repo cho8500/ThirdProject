@@ -33,12 +33,12 @@ LEFT JOIN disc_analysis a
 ON d.link = a.link
 WHERE a.link IS NULL;
 
+0217 수정 ==========================================================================================
+
 CREATE TABLE stocks(
     name VARCHAR(50) PRIMARY KEY,
     code VARCHAR(10)
 );
-
-0217 수정 ==========================================================================================
 
 CREATE TABLE news_comments(
     id INT PRIMARY KEY AUTO_INCREMENT,
