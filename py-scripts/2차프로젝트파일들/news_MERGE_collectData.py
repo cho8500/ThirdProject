@@ -156,6 +156,8 @@ for month in range(8, 11):
                 scr_list.append(scr)
                 sum += scr
 
+            print(f"scr_list{scr_list}")
+            exit()
             avg_score = sum / len(link_list)
 
         # _________________________DB insertion_________________________

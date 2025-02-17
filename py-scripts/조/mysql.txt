@@ -32,3 +32,18 @@ FROM disc_data d
 LEFT JOIN disc_analysis a
 ON d.link = a.link
 WHERE a.link IS NULL;
+
+create table news_comments(
+id int primary key auto_increment,
+date date,
+name varchar(50),
+code varchar(10),
+title text,
+link text,
+up int,
+down int,
+comment text,
+analysis varchar(10) default "F",
+sent_type varchar(20),
+sent_score float default 0
+);

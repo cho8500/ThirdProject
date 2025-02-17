@@ -2,6 +2,9 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.common.by  import By
+from selenium.webdriver.support.ui import WebDriverWait       as WAIT
+from selenium.webdriver.support    import expected_conditions as EC
 from webdriver_manager.chrome import ChromeDriverManager
 from datetime import datetime
 from bs4 import BeautifulSoup
@@ -11,8 +14,8 @@ import os
 import time
 import requests
 import pandas as pd
-#import __LSTM.predic as pr
-
+import __LSTM.predic as pr
+import tensorflow as tf
 
 # 분석할 종목과 코드 리스트
 list = {
@@ -40,17 +43,20 @@ for month in range(8, 11):
     for date in range(1, end_day) :
 
         # current_date = date
-        current_date_dash   = f"2024-{month:02}-{date:02}"
+        current_date_dash    = f"2024-{month:02}-{date:02}"
         current_date_withdot = f"2024.{month:02}.{date:02}"
         current_date_nodot   = f"2024{month:02}{date:02}"
        
-       
-        current_date_dash   = f"2025-02-12"
+        # 임의 test용  
+        current_date_dash    = f"2025-02-12"
         current_date_withdot = f"2025.02.12"
         current_date_nodot   = f"20250212"
 
         # 브라우저 선택
         driver = webdriver.Chrome()
+        
+        scr_list = []
+        eval_list = []
 
         # _________________________url ext_________________________
 
@@ -65,7 +71,11 @@ for month in range(8, 11):
 
             # 설정대로 뉴스를 검색하고 대기
             driver.get(url)
-            time.sleep(2)
+            try :
+                WAIT(driver, 10).until(EC.presence_of_all_elements_located((By.LINK_TEXT, "네이버뉴스")))
+            except Exception :
+                print(f"{item} & page={url} 데이터 로드 실패")
+                break
 
             # 스크롤 끝까지 내리기
             while True :
@@ -113,19 +123,20 @@ for month in range(8, 11):
             for url_item in urlList :
                 print(url_item,"을 탐색합니다")
                 url_item = url_item.replace("article/","article/comment/")
-                #url = url_item
+                # 실제로 실행할때 사용 할거
+                # url = url_item
+                # 실제로 실행하게 되면 지워야 하는 거 ↓
                 url = "https://n.news.naver.com/mnews/article/comment/366/0001053512?sid=105"
                 print(f"URL : {url}")
                 
-                # URL 요청 및 HTML 가져오기
-                # result = requests.get(url = url_item, headers = agent_head)
-                # soup   = BeautifulSoup(result.text, "html.parser")
-                
                 print("셀레니움에게 주소를 전달합니다")
                 driver.get(url)
-                time.sleep(1)
+                try :
+                    WAIT(driver, 10).until(EC.presence_of_all_elements_located((By.CSS_SELECTOR, ".u_cbox_page_more")))
+                except Exception :
+                    print(f"{item} & page={url} 데이터 로드 실패")
+                    break
                 
-                    # 더보기 
                 while True :
                     try:
                         print("더보기 버튼을 찾습니다")
@@ -146,9 +157,9 @@ for month in range(8, 11):
                 print("댓글을 찾습니다")
                 comment = soup.select(".u_cbox_contents")
                 print("추천의 개수를 찾습니다")
-                recomm = soup.select(".u_cbox_cnt_recomm")
+                recommlist = soup.select("em.u_cbox_cnt_recomm")
                 print("비추천의 개수를 찾습니다")
-                unrecomm = soup.select(".u_cbox_cnt_unrecomm")
+                unrecommlist = soup.select("em.u_cbox_cnt_unrecomm")
                 title = soup.select_one(".media_end_head_headline")
 
                  #.u_cbox_contents가 없으면 url 삭제후 다음 반복으로 넘어감
@@ -160,33 +171,59 @@ for month in range(8, 11):
                 for co in comment :
                     commentlist.append(co.get_text())
 
-                print(f"length : {len(commentlist)}=======================")
-                print(f"recomm  length : {len(recomm)}=======================")
-                print(f"unrecomm length : {len(unrecomm)}=======================")
-
-                #데이터 프레임화 ############
-
-
-                # print(totalresult["URL"])
-
         # _________________________DB insertion_________________________
 
+                #  str만 가져오고 좋아요, 싫어요의 타입 변경
+                
+                title = title.get_text().strip()
+                                
+                recommlist   = [element.get_text().strip() for element in recommlist]
+                unrecommlist = [element.get_text().strip() for element in unrecommlist]
+                
+                recommlist   = pd.Series(recommlist).astype(int)
+                unrecommlist = pd.Series(unrecommlist).astype(int)
+                
+                print(f"length          : ===== {len(commentlist)} =====")
+                print(f"recomm  length  : ===== {len(recommlist)} =====")
+                print(recommlist)
+                print(f"unrecomm length : ===== {len(unrecommlist)} =====")
+                print(unrecommlist)
+                
+                # 기사마다 감성분석 후 점수를 리스트로 저장
+                for sent in commentlist:
+                    scr = pr.sentiment_predict(sent)
+                    scr = round(scr, 2)
+                    if scr < 45 :
+                        eval = "negative"
+                    elif 45 <= scr <= 55 :
+                        eval = "neutral"
+                    else :
+                        eval = "positive"
+                    eval_list.append(eval)
+                    scr_list.append(scr)
 
+                print(f"점수리스트 : ======{scr_list}======")
                 
                 # 일일데이터를 데이터프레임화
                 print(f"totalresult 데이터프레임화...")
                 totalresult = pd.DataFrame({
-                    "name" : [item]  * len(commentlist) ,
-                    "code" : [code] * len(commentlist)  ,
-                    "date" : [current_date_dash ] * len(commentlist)  ,
-                    "title" : [title ] * len(commentlist)  ,
-                    "URL" : [url] * len(commentlist)  ,
-                    "commentlist" : commentlist,
-                    "recomm" : recomm,
-                    "unrecomm" : unrecomm
+                    "date"      : [current_date_dash ]  * len(commentlist)  ,
+                    "name"      : [item]                * len(commentlist) ,
+                    "code"      : [code]                * len(commentlist)  ,
+                    "title"     : [title]               * len(commentlist)  ,
+                    "link"      : [url]                 * len(commentlist)  ,
+                    "like"      : recommlist,
+                    "dislike"   : unrecommlist,
+                    "comment"   : commentlist
                 })
-                print(totalresult)
-
+                #print(totalresult)
+                print(totalresult["comment"], totalresult["score"] )
+                
+                resultupdate = pd.DataFrame({
+                    "analysis"  : "T",
+                    "score"     : scr_list,
+                    "evaluation": eval_list
+                })
             # DB 처리
                 db = DBManager()
                 db.DBOpen(
@@ -201,20 +238,3 @@ for month in range(8, 11):
 
                 db.DBClose()
                 exit()
-'''
-        # _________________________sentiment predict_________________________
-
-            # 내부 공백 및 줄바꿈 제거
-            contents = contents["기사내용"]
-            # 점수 총합 및 점수 리스트 생성
-            sum = 0
-            scr_list = []
-            avg_score = 0
-            # 기사마다 감성분석 후 점수를 리스트로 저장
-            for sent in commentlist:
-                scr = pr.sentiment_predict(sent)
-                scr_list.append(scr)
-                sum += scr
-            print(scr_list)
-            avg_score = sum / len(link_list)
-'''
