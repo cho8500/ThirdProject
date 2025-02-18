@@ -76,7 +76,6 @@ class DBManager :
             print(f"{len(data)}개의 데이터가 성공적으로 처리되었습니다.")
             print("="*50)
             return True
-
         except Exception as e:
             print(f"데이터 처리 중 오류 발생: {e}")
             self.con.rollback()
@@ -127,3 +126,20 @@ class DBManager :
         df = pd.DataFrame(self.data)
         df.columns = columns
         return df
+    
+        # 데이터프레임을 사용하여 업데이트를 실행하는 메소드
+    def update_df(self, df):  # <--- 여기에 새로 추가된 메소드입니다
+        try:
+            self.cursor = self.con.cursor()
+            for index, row in df.iterrows():
+                update_sql = f"UPDATE news_comments SET analysis = 'T', sent_type = '{row['evaluation']}', sent_score = {row['score']} WHERE comment = '{row['comment']}'"
+                print(f"sql : {update_sql}")
+                self.cursor.execute(update_sql)
+            self.con.commit()
+            self.cursor.close()
+            print(f"{len(df)}개의 데이터가 성공적으로 업데이트되었습니다.")
+            return True
+        except Exception as e:
+            print(f"데이터 업데이트 중 오류 발생: {e}")
+            self.con.rollback()
+            return False

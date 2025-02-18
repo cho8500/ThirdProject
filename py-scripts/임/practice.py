@@ -27,7 +27,6 @@ list = {
 now = datetime.now()
 '''
 
-
 # 달 설정
 for month in range(8, 11):
 
@@ -99,8 +98,6 @@ for month in range(8, 11):
 
             urlList = url_df["링크"]
             
-            
-
             agent_head = {
                 "User-Agent" : "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36"
             }
