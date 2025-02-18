@@ -29,7 +29,7 @@ def crawl_discussion(name, code, start_date, end_date) :
     # 기본 URL
     base_url = f"https://finance.naver.com/item/board.naver?code={code}"
 
-    # Selenium 설정 : 백그라운드 실행, 렌더링 지정
+    # Selenium 설정
     options = webdriver.ChromeOptions()
     options.add_argument("--headless") # 백그라운드 실행
     options.add_argument("--disable-gpu") # GPU 가속 비활성화
@@ -43,20 +43,18 @@ def crawl_discussion(name, code, start_date, end_date) :
     options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.51 Safari/537.36") # User-Agent 변경
 
     driver = webdriver.Chrome(options = options)
-    driver.execute_script(f"window.location.href='{base_url}';")
 
     all_posts   = []
     page        = 1
-    prev_page   = None
-    found_range = False
     step_size   = 1
-
-    start_date_dt = datetime.strptime(start_date, "%Y.%m.%d")
-    end_date_dt   = datetime.strptime(end_date, "%Y.%m.%d")
+    end_date_dt = datetime.strptime(end_date, "%Y.%m.%d")
 
     while True :
         try :
+            # 웹 드라이버 로드 대기
+            driver.execute_script(f"window.location.href='{base_url}&page={page}';")
             WAIT(driver, 5).until(EC.presence_of_all_elements_located((By.CSS_SELECTOR, ".type2 tbody")))
+
             soup = BeautifulSoup(driver.page_source, "html.parser")
             rows = soup.select(".type2 tbody tr")
 
@@ -66,6 +64,7 @@ def crawl_discussion(name, code, start_date, end_date) :
 
             # 페이지 최상단 날짜 확인
             first_date = None
+
             for row in rows :
                 cols = row.select("td")
                 if len(cols) < 5 :
@@ -79,12 +78,9 @@ def crawl_discussion(name, code, start_date, end_date) :
                 print(f"[ERROR] {name} {page}페이지 날짜 확인 불가")
                 break
 
+            # 날짜 비교 후 step_size 조정
             first_date_dt = datetime.strptime(first_date, "%Y.%m.%d")
             date_diff     = abs((first_date_dt - end_date_dt).days)
-
-            if prev_page == page :
-                found_range = True
-            prev_page = page
 
             if date_diff >= 15 :
                 step_size = 100
@@ -95,61 +91,57 @@ def crawl_discussion(name, code, start_date, end_date) :
             else :
                 step_size = 1
 
-            if not found_range :
-                if first_date > end_date :
-                    page += step_size
+            # 날짜 확인 후 크롤링 개시 또는 page 조정
+            if start_date <= first_date <= end_date :
+                print(f"[{name}] page={page} 범위 내 탐색 시작")
+
+                while True :
+                    print(f"[{name}] page={page} first_date={first_date} 크롤링 중...")
+                    soup = BeautifulSoup(driver.page_source, "html.parser")
+                    rows = soup.select(".type2 tbody tr")
+
+                    stop_flag = False
+                    for row in rows :
+                        cols = row.select("td")
+                        if len(cols) < 5 :
+                            continue
+
+                        title_tag      = cols[1]
+                        cleanbot_title = title_tag.select_one(".cleanbot_list_blind")
+
+                        if cleanbot_title :
+                            continue
+
+                        for span in title_tag.find_all("span") :
+                            span.decompose()
+
+                        title = title_tag.get_text(strip=True)
+                        date  = cols[0].text.strip()[:10]
+                        link  = f'https://finance.naver.com{cols[1].a["href"][:48] if cols[1].a else ""}'
+                        view  = cols[3].text.strip()
+                        up    = cols[4].text.strip()
+                        down  = cols[5].text.strip()
+
+                        # 수집한 날짜 데이터가 정해진 범위 안에 있는지 확인
+                        if start_date <= date <= end_date :
+                            all_posts.append([name, code, date, title, link, view, up, down])
+                        elif date < start_date :
+                            stop_flag = True
+
+                    # 정해진 날짜를 벗어났으면 while 밖으로
+                    if stop_flag :
+                        break
+
+                    page += 1
                     driver.execute_script(f"window.location.href='{base_url}&page={page}';")
                     WAIT(driver, 5).until(EC.presence_of_all_elements_located((By.CSS_SELECTOR, ".type2 tbody")))
-                    continue
 
-                elif first_date < end_date :
-                    page -= step_size
-                    driver.execute_script(f"window.location.href='{base_url}&page={page}';")
-                    WAIT(driver, 5).until(EC.presence_of_all_elements_located((By.CSS_SELECTOR, ".type2 tbody")))
-                    continue
+                break
 
-            # 범위 안에서는 page +1
-            print(f"[{name}] page={page} 범위 내 탐색 시작")
-
-            while True :
-                soup = BeautifulSoup(driver.page_source, "html.parser")
-                rows = soup.select(".type2 tbody tr")
-
-                stop_flag = False
-                for row in rows :
-                    cols = row.select("td")
-                    if len(cols) < 5 :
-                        continue
-
-                    title_tag      = cols[1]
-                    cleanbot_title = title_tag.select_one(".cleanbot_list_blind")
-
-                    if cleanbot_title :
-                        continue
-
-                    for span in title_tag.find_all("span") :
-                        span.decompose()
-
-                    title = title_tag.get_text(strip=True)
-                    date  = cols[0].text.strip()[:10]
-                    link  = f'https://finance.naver.com{cols[1].a["href"][:48] if cols[1].a else ""}'
-                    view  = cols[3].text.strip()
-                    up    = cols[4].text.strip()
-                    down  = cols[5].text.strip()
-
-                    # 수집한 날짜 데이터가 정해진 범위 안에 있는지 확인
-                    if start_date <= date <= end_date :
-                        all_posts.append([name, code, date, title, link, view, up, down])
-                    elif date < start_date :
-                        stop_flag = True
-
-                # 정해진 날짜를 벗어났으면 while 밖으로
-                if stop_flag :
-                    break
-
-                page += 1
-                driver.execute_script(f"window.location.href='{base_url}&page={page}';")
-                WAIT(driver, 5).until(EC.presence_of_all_elements_located((By.CSS_SELECTOR, ".type2 tbody")))
+            elif first_date > end_date :
+                page += step_size
+            else :
+                page -= step_size
 
         except Exception as e :
             print(f"[ERROR] {name} {page} 로드 실패 : {e}")
@@ -160,9 +152,10 @@ def crawl_discussion(name, code, start_date, end_date) :
 
     # 데이터프레임화
     postDf = pd.DataFrame(all_posts, columns = ["name", "code", "date", "title", "link", "view", "up", "down"])
-    if postDf :
-        df["date"] = pd.to_datetime(df["date"])
-        df = df.sort_values(by="date")
+
+    if not postDf.empty :
+        postDf["date"] = pd.to_datetime(postDf["date"])
+        postDf = postDf.sort_values(by="date")
 
     return postDf
 
