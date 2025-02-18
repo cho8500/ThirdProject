@@ -45,10 +45,11 @@ def crawl_discussion(name, code, start_date, end_date) :
     driver = webdriver.Chrome(options = options)
     driver.execute_script(f"window.location.href='{base_url}';")
 
-    all_posts     = []
-    page          = 1
-    prev_page     = None
-    found_range   = False
+    all_posts   = []
+    page        = 1
+    prev_page   = None
+    found_range = False
+    step_size   = 1
 
     start_date_dt = datetime.strptime(start_date, "%Y.%m.%d")
     end_date_dt   = datetime.strptime(end_date, "%Y.%m.%d")
@@ -189,7 +190,7 @@ def save_to_DB (table_name, df) :
 '''--------실행--------'''
 if __name__ == "__main__" :
 
-    list = load_stock_list("./조/stock_list.json")
+    list = load_stock_list("./cho/stock_list.json")
 
     # datetype = "yyyy.mm.dd"
     start_date = "2024.10.01"

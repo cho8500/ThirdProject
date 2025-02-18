@@ -2,9 +2,9 @@ import subprocess
 
 # 실행할 Python 파일
 scripts = [
-    "./discussion_list_crawling.py",
-    "./discussion_post_crawling.py",
-    "./discussion_sentiment.py"
+    "./cho/discussion_list_crawling.py",
+    "./cho/discussion_post_crawling.py",
+    "./cho/discussion_sentiment.py"
 ]
 
 for script in scripts:
