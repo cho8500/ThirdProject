@@ -70,25 +70,26 @@ System.out.println("[데이터 로드] size: " + stock_list.size());
 			/* 자동완성 */
 			#autocomplete_list {
 				position: absolute;
-				top: 40px;
-				width: 300px;
+				top: 50px;
+				width: 320px;
 				border: 1px solid #ccc;
 				border-radius: 5px;
 				background: white;
 				display: none;
-				max-height: 150px;
 				overflow-y: auto;
 				z-index: 10;
 				text-align: left;
+				font-size: 12px;
 			}
 			
 			#autocomplete_list div {
-				padding: 10px;
+				padding: 12px 20px;
 				cursor: pointer;
 			}
 			
 			#autocomplete_list div:hover {
 				background: #f0f0f0;
+				font-weight: bold;
 			}
 		</style>
 	</head>
@@ -134,6 +135,9 @@ System.out.println("[데이터 로드] size: " + stock_list.size());
 				let query = document.querySelector("#query").value.trim();
 				let list  = document.querySelector("#autocomplete_list");
 				
+				console.log("[query] ", query);
+				console.log("[list] ", list);
+				
 				list.innerHTML     = "";
 				list.style.display = "none";
 				
@@ -151,13 +155,17 @@ System.out.println("[데이터 로드] size: " + stock_list.size());
 					
 					filteredStocks.forEach(stock => {
 						let item       = document.createElement("div");
-						item.innerHTML = `<b>${stock.name}</b> ${stock.code}`;
-						item.onclick   = function() {
+						item.innerHTML = `\${stock.name} (\${stock.code})`;
+						
+						console.log("[item.innerHTML] ", item.innerHTML);
+						
+						item.onclick = function() {
 							document.querySelector("#query").value = stock.name;
 							list.style.display = "none";
 						};
 						list.appendChild(item);
 					});
+					list.classList.add("show");
 				}
 			}
 			
