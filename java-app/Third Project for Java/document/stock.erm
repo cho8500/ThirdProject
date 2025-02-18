@@ -135,7 +135,7 @@
 			</connections>
 			<display>false</display>
 			<creation_date>2024-11-22 16:17:11</creation_date>
-			<updated_date>2025-02-17 17:34:19</updated_date>
+			<updated_date>2025-02-18 10:30:24</updated_date>
 			<model_property>
 				<name>프로젝트명</name>
 				<value></value>
@@ -503,12 +503,12 @@
 		</table>
 		<table>
 			<id>1</id>
-			<height>75</height>
-			<width>120</width>
+			<height>289</height>
+			<width>246</width>
 				<font_name>맑은 고딕</font_name>
 				<font_size>9</font_size>
 			<x>432</x>
-			<y>72</y>
+			<y>408</y>
 			<color>
 				<r>128</r>
 				<g>128</g>
@@ -538,8 +538,8 @@
 					<referenced_complex_unique_key>null</referenced_complex_unique_key>
 				</relation>
 			</connections>
-			<physical_name>discussion</physical_name>
-			<logical_name>종목토론방</logical_name>
+			<physical_name>news_comments</physical_name>
+			<logical_name>뉴스댓글</logical_name>
 			<description></description>
 			<constraint></constraint>
 			<primary_key_name></primary_key_name>
@@ -811,41 +811,8 @@
 					</sequence>
 				</normal_column>
 				<normal_column>
-					<word_id>13</word_id>
-					<id>10</id>
-					<description></description>
-					<unique_key_name></unique_key_name>
-					<logical_name></logical_name>
-					<physical_name></physical_name>
-					<type>integer</type>
-					<constraint></constraint>
-					<default_value>0</default_value>
-					<auto_increment>false</auto_increment>
-					<foreign_key>false</foreign_key>
-					<not_null>false</not_null>
-					<primary_key>false</primary_key>
-					<unique_key>false</unique_key>
-					<character_set></character_set>
-					<collation></collation>
-					<sequence>
-						<name></name>
-						<schema></schema>
-						<increment></increment>
-						<min_value></min_value>
-						<max_value></max_value>
-						<start></start>
-						<cache></cache>
-						<nocache>false</nocache>
-						<cycle>false</cycle>
-						<order>false</order>
-						<description></description>
-						<data_type></data_type>
-						<decimal_size>0</decimal_size>
-					</sequence>
-				</normal_column>
-				<normal_column>
 					<word_id>3</word_id>
-					<id>11</id>
+					<id>10</id>
 					<description></description>
 					<unique_key_name></unique_key_name>
 					<logical_name></logical_name>
@@ -878,7 +845,7 @@
 				</normal_column>
 				<normal_column>
 					<word_id>0</word_id>
-					<id>12</id>
+					<id>11</id>
 					<description></description>
 					<unique_key_name></unique_key_name>
 					<logical_name></logical_name>
@@ -911,7 +878,7 @@
 				</normal_column>
 				<normal_column>
 					<word_id>10</word_id>
-					<id>13</id>
+					<id>12</id>
 					<description></description>
 					<unique_key_name></unique_key_name>
 					<logical_name></logical_name>
@@ -944,7 +911,7 @@
 				</normal_column>
 				<normal_column>
 					<word_id>9</word_id>
-					<id>14</id>
+					<id>13</id>
 					<description></description>
 					<unique_key_name></unique_key_name>
 					<logical_name></logical_name>
@@ -990,12 +957,12 @@
 		</table>
 		<table>
 			<id>2</id>
-			<height>317</height>
-			<width>246</width>
+			<height>75</height>
+			<width>120</width>
 				<font_name>맑은 고딕</font_name>
 				<font_size>9</font_size>
 			<x>432</x>
-			<y>408</y>
+			<y>72</y>
 			<color>
 				<r>128</r>
 				<g>128</g>
@@ -1025,8 +992,8 @@
 					<referenced_complex_unique_key>null</referenced_complex_unique_key>
 				</relation>
 			</connections>
-			<physical_name>news_comments</physical_name>
-			<logical_name>뉴스댓글</logical_name>
+			<physical_name>discussion</physical_name>
+			<logical_name>종목토론방</logical_name>
 			<description></description>
 			<constraint></constraint>
 			<primary_key_name></primary_key_name>
@@ -1034,7 +1001,7 @@
 			<columns>
 				<normal_column>
 					<word_id>6</word_id>
-					<id>15</id>
+					<id>14</id>
 					<description></description>
 					<unique_key_name></unique_key_name>
 					<logical_name></logical_name>
@@ -1066,7 +1033,7 @@
 					</sequence>
 				</normal_column>
 				<normal_column>
-					<id>16</id>
+					<id>15</id>
 					<referenced_column>0</referenced_column>
 					<relation>1</relation>
 					<description></description>
@@ -1101,7 +1068,7 @@
 				</normal_column>
 				<normal_column>
 					<word_id>4</word_id>
-					<id>17</id>
+					<id>16</id>
 					<description></description>
 					<unique_key_name></unique_key_name>
 					<logical_name></logical_name>
@@ -1134,7 +1101,7 @@
 				</normal_column>
 				<normal_column>
 					<word_id>1</word_id>
-					<id>18</id>
+					<id>17</id>
 					<description></description>
 					<unique_key_name></unique_key_name>
 					<logical_name></logical_name>
@@ -1167,7 +1134,7 @@
 				</normal_column>
 				<normal_column>
 					<word_id>11</word_id>
-					<id>19</id>
+					<id>18</id>
 					<description></description>
 					<unique_key_name></unique_key_name>
 					<logical_name></logical_name>
@@ -1200,7 +1167,7 @@
 				</normal_column>
 				<normal_column>
 					<word_id>7</word_id>
-					<id>20</id>
+					<id>19</id>
 					<description></description>
 					<unique_key_name></unique_key_name>
 					<logical_name></logical_name>
@@ -1233,7 +1200,7 @@
 				</normal_column>
 				<normal_column>
 					<word_id>12</word_id>
-					<id>21</id>
+					<id>20</id>
 					<description></description>
 					<unique_key_name></unique_key_name>
 					<logical_name></logical_name>
@@ -1266,7 +1233,7 @@
 				</normal_column>
 				<normal_column>
 					<word_id>5</word_id>
-					<id>22</id>
+					<id>21</id>
 					<description></description>
 					<unique_key_name></unique_key_name>
 					<logical_name></logical_name>
@@ -1274,6 +1241,39 @@
 					<type>integer</type>
 					<constraint></constraint>
 					<default_value></default_value>
+					<auto_increment>false</auto_increment>
+					<foreign_key>false</foreign_key>
+					<not_null>false</not_null>
+					<primary_key>false</primary_key>
+					<unique_key>false</unique_key>
+					<character_set></character_set>
+					<collation></collation>
+					<sequence>
+						<name></name>
+						<schema></schema>
+						<increment></increment>
+						<min_value></min_value>
+						<max_value></max_value>
+						<start></start>
+						<cache></cache>
+						<nocache>false</nocache>
+						<cycle>false</cycle>
+						<order>false</order>
+						<description></description>
+						<data_type></data_type>
+						<decimal_size>0</decimal_size>
+					</sequence>
+				</normal_column>
+				<normal_column>
+					<word_id>13</word_id>
+					<id>22</id>
+					<description></description>
+					<unique_key_name></unique_key_name>
+					<logical_name></logical_name>
+					<physical_name></physical_name>
+					<type>integer</type>
+					<constraint></constraint>
+					<default_value>0</default_value>
 					<auto_increment>false</auto_increment>
 					<foreign_key>false</foreign_key>
 					<not_null>false</not_null>

@@ -29,6 +29,7 @@ public class DataVO
 	private String neg_count;	// 부정수
 	private String ntr_count;	// 중립수
 	
+	/* GETTER */
 	public String getId()         { return id;         }
 	public String getDate()       { return date;       }
 	public String getName()       { return name;       }
@@ -41,12 +42,14 @@ public class DataVO
 	public String getAnalysis()   { return analysis;   }
 	public String getSent_type()  { return sent_type;  }
 	public String getSent_score() { return sent_score; }
+	
 	public String getView()       { return view;       }
 	public String getPos_count()  { return pos_count;  }
 	public String getNeg_count()  { return neg_count;  }
 	public String getNtr_count()  { return ntr_count;  }
 	public String getCmt_count()  { return cmt_count;  }
 	
+	/* SETTER */
 	public void setId(String id)                 { this.id         = id;         }
 	public void setDate(String date)             { this.date       = date;       }
 	public void setName(String name)             { this.name       = name;       }
@@ -59,6 +62,7 @@ public class DataVO
 	public void setAnalysis(String analysis)     { this.analysis   = analysis;   }
 	public void setSent_type(String sent_type)   { this.sent_type  = sent_type;  }
 	public void setSent_score(String sent_score) { this.sent_score = sent_score; }
+	
 	public void setView(String view)             { this.view       = view;       }
 	public void setPos_count(String pos_count)   { this.pos_count  = pos_count;  }
 	public void setNeg_count(String neg_count)   { this.neg_count  = neg_count;  }

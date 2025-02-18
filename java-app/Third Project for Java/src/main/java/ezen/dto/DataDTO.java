@@ -12,18 +12,37 @@ import java.util.ArrayList;
 
 public class DataDTO extends DbManager
 {
-	// Read
+	/* index.jsp 검색 목록 제공 */
+	public ArrayList<DataVO> getStockNames()
+	{
+		String sql = "SELECT * FROM stocks;";
+
+		System.out.println("[SQL] " + sql);
+		
+		this.driverLoad();
+		this.dbConnect();
+		this.executeQuery(sql);
+		
+		ArrayList<DataVO> stock_list = new ArrayList<DataVO>();
+		
+		while(this.next())
+		{
+			DataVO vo = new DataVO();
+			
+			vo.setName(this.getString("name"));
+			vo.setCode(this.getString("code"));
+			
+			stock_list.add(vo);
+		}
+		
+		this.dbDisConnect();
+		
+		return stock_list;
+	}
+	
 	public ArrayList<DataVO> getChartData()
 	{
 		String sql = "";
-		sql += "WITH RECURSIVE date_series AS (";
-		sql += "SELECT CURDATE() - INTERVAL 180 DAY AS date ";
-		sql += "UNION ALL ";
-		sql += "SELECT date + INTERVAL 1 DAY ";
-		sql += "FROM date_series ";
-		sql += "WHERE date < CURDATE()";
-		sql += ") ";
-		
 		sql += "SELECT ";
 		sql +=		"d.date, ";
 		sql +=		"s.name, ";
@@ -36,7 +55,7 @@ public class DataDTO extends DbManager
 		sql += "LEFT JOIN total_result t ON d.date = t.date AND s.name = t.name ";
 		sql += "ORDER BY d.date ASC, s.name ASC;";
 		
-		System.out.println(sql);
+		System.out.println("[SQL] " + sql);
 		
 		this.driverLoad();
 		this.dbConnect();
@@ -57,38 +76,5 @@ public class DataDTO extends DbManager
 		this.dbDisConnect();
 		
 		return data_list;
-	}
-	
-	public ArrayList<DataVO> getNews()
-	{
-		String sql = "";
-		sql += "SELECT * ";
-		sql += "FROM daily_data ";
-		sql += "WHERE date=CURDATE() ";
-		sql += "ORDER BY name DESC, score DESC;";
-		
-		System.out.println(sql);
-		
-		this.driverLoad();
-		this.dbConnect();
-		this.executeQuery(sql);
-		
-		ArrayList<DataVO> url_list = new ArrayList<DataVO>();
-		
-		while(this.next())
-		{
-			DataVO vo = new DataVO();
-			
-			vo.setId(this.getString("id"));
-			vo.setDate(this.getString("date"));
-			vo.setName(this.getString("name"));
-			vo.setCode(this.getString("code"));
-			
-			url_list.add(vo);
-		}
-		
-		this.dbDisConnect();
-		
-		return url_list;
 	}
 }
