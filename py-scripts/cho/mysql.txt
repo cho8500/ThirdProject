@@ -26,7 +26,7 @@ CREATE TABLE discussion(
     date DATE COMMENT 'board date',
     name VARCHAR(50) COMMENT 'stock name',
     code VARCHAR(10) COMMENT 'stock code',
-    title TEXT COMMENT 'board title',
+    title VARCHAR(255) COMMENT 'board title',
     link TEXT COMMENT 'board link',
     up INT COMMENT 'like',
     down INT COMMENT 'dislike',
@@ -35,5 +35,10 @@ CREATE TABLE discussion(
     analysis VARCHAR(10) DEFAULT 'F' COMMENT 'whether analysis',
     sent_type VARCHAR(20) COMMENT 'positive or negative or neutral',
     sent_score FLOAT DEFAULT 0 COMMENT '0 ~ 100',
-    FOREIGN KEY(name) REFERENCES stocks(name)
+    FOREIGN KEY(name) REFERENCES stocks(name),
+    UNIQUE KEY unique_post (name, code, date, title, link)
 );
+
+# newComments VS discussion
+# 1. title 형식 TEXT VS VARCHAR(255) : 중복 제거를 위해 (date, name, code, title, link) unique 조합
+# 2. view 컬럼 유무 : newsComments는 없고 discussion은 있음

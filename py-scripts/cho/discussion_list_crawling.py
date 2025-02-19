@@ -187,8 +187,8 @@ if __name__ == "__main__" :
     list = load_stock_list("./cho/stock_list.json")
 
     # datetype = "yyyy.mm.dd"
-    start_date = "2024.10.01"
-    end_date   = "2024.12.31"
+    start_date = "2024.11.01"
+    end_date   = "2025.01.31"
 
     for name, code in list.items() :
 
