@@ -33,11 +33,17 @@ def preprocessing(df) :
 
     df["full_text"] = df["title"].fillna("") + " " + df["comment"].fillna("")
 
-    df = df[~df["full_text"].str.contains(r"https:", regex=True)]
-    df = df[~df["full_text"].str.contains(r"[^ㄱ-ㅎㅏ-ㅣ가-힣0-9a-zA-Z ]", regex=True)]
+    # 제외할 특수문자
+    exclude_chars = r"[\u2000-\u206F\u25A0-\u25FF\u2600-\u26FF]"
 
-    df["full_text"] = df["full_text"].str.replace(r"[^ㄱ-ㅎㅏ-ㅣ가-힣0-9a-zA-Z ]", "", regex=True)
-    df["full_text"] = df["full_text"].str.replace("\\s+", " ", regex=True).str.strip()
+    df = df[~df["full_text"].str.contains(exclude_chars, regex=True)]
+    df = df[~df["full_text"].str.contains(r"https:", regex=True)]
+
+    # 허용할 특수문자
+    allowed_chars = r"\.,!\?\(\)~\"';:<>$\-\+&\%"
+
+    df["full_text"] = df["full_text"].str.replace(fr"[^\w{allowed_chars}\s]", "", regex=True)
+    df["full_text"] = df["full_text"].str.replace(r"\s+", " ", regex=True).str.strip()
 
     return df
 
