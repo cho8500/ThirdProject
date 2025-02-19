@@ -32,15 +32,16 @@ def crawl_discussion(name, code, start_date, end_date) :
     # Selenium 설정
     options = webdriver.ChromeOptions()
     options.add_argument("--headless") # 백그라운드 실행
-    options.add_argument("--disable-gpu") # GPU 가속 비활성화
-    options.add_argument("--log-level=3") # 불필요한 로그 제거
-    options.add_argument("--disable-infobars") # 안내메시지 제거
-    options.add_argument("--disabled-extensions") # 불필요한 확장프로그램 로드 방지
     options.add_argument("--window-size=1920x1080") # 해상도 설정
-    options.add_argument("--disabled-notifications") # 알림차단
-    options.add_argument("--disabled-popup-blocking") # 팝업 차단 해제
-    options.add_argument("--disable-blink-features=AutomationControlled") # selenium 감지방지
-    options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.51 Safari/537.36") # User-Agent 변경
+
+    # options.add_argument("--disable-gpu") # GPU 가속 비활성화
+    # options.add_argument("--log-level=3") # 불필요한 로그 제거
+    # options.add_argument("--disable-infobars") # 안내메시지 제거
+    # options.add_argument("--disabled-extensions") # 불필요한 확장프로그램 로드 방지
+    # options.add_argument("--disabled-notifications") # 알림차단
+    # options.add_argument("--disabled-popup-blocking") # 팝업 차단 해제
+    # options.add_argument("--disable-blink-features=AutomationControlled") # selenium 감지방지
+    # options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.51 Safari/537.36") # User-Agent 변경
 
     driver = webdriver.Chrome(options = options)
 

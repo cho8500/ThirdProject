@@ -74,10 +74,10 @@ class DBManager :
     # INSERT DF
     def insert_df(self, table_name, df) :
 
-        # 컬럼명 및 VALUES(%s, %s, ...) 생성
+        # 컬럼명 및 VALUES(%s, %s, ...) 생성 (중복값 무시)
         columns = ", ".join(df.columns)
         values  = ", ".join(["%s"] * len(df.columns))
-        sql     = f"INSERT INTO {table_name} ({columns}) VALUES ({values})"
+        sql     = f"INSERT IGNORE INTO {table_name} ({columns}) VALUES ({values})"
 
         # DataFrame을 튜플 리스트로 변환
         data = [tuple(row) for row in df.to_numpy()]
