@@ -31,7 +31,7 @@ def crawl_discussion(name, code, start_date, end_date) :
 
     # Selenium 설정
     options = webdriver.ChromeOptions()
-    options.add_argument("--headless") # 백그라운드 실행
+    options.add_argument("--headless")              # 백그라운드 실행
     options.add_argument("--window-size=1920x1080") # 해상도 설정
 
     # options.add_argument("--disable-gpu") # GPU 가속 비활성화
@@ -84,11 +84,11 @@ def crawl_discussion(name, code, start_date, end_date) :
             date_diff     = abs((first_date_dt - end_date_dt).days)
 
             if date_diff >= 15 :
-                step_size = 100
-            elif 7 <= date_diff < 15 :
                 step_size = 50
-            elif 2 <= date_diff < 7 :
+            elif 7 <= date_diff < 15 :
                 step_size = 10
+            elif 3 <= date_diff < 7 :
+                step_size = 2
             else :
                 step_size = 1
 

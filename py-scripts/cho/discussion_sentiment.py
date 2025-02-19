@@ -17,7 +17,7 @@ def fetch_cont() :
         # pw     = "chogh"
     )
 
-    sql = "SELECT id, comment FROM discussion WHERE analysis = 'F'"
+    sql = "SELECT id, title, comment FROM discussion WHERE analysis = 'F'"
 
     df = db.fetch_DF(sql)
     db.DBClose()
@@ -27,14 +27,26 @@ def fetch_cont() :
 # 데이터 전처리
 def preprocessing(df) :
 
-    df["comment"] = df["comment"].str.replace("[^ㄱ-ㅎㅏ-ㅣ가-힣0-9 ]", "", regex=True)
-    df["comment"] = df["comment"].str.replace("\\s+", " ", regex=True)
-    df.dropna(subset=["comment"], inplace=True)
+    if df is None or df.empty :
+        print("[INFO] 전처리할 데이터가 없습니다.")
+        return None
+
+    df["full_text"] = df["title"].fillna("") + " " + df["comment"].fillna("")
+
+    df = df[~df["full_text"].str.contains(r"https:", regex=True)]
+    df = df[~df["full_text"].str.contains(r"[^ㄱ-ㅎㅏ-ㅣ가-힣0-9a-zA-Z ]", regex=True)]
+
+    df["full_text"] = df["full_text"].str.replace(r"[^ㄱ-ㅎㅏ-ㅣ가-힣0-9a-zA-Z ]", "", regex=True)
+    df["full_text"] = df["full_text"].str.replace("\\s+", " ", regex=True).str.strip()
 
     return df
 
 # 감성분석 실행
 def sent_analysis(df) :
+
+    if df is None or df.empty :
+        print("[INFO] 감성분석할 데이터가 없습니다.")
+        return None
 
     df["sent_score"] = df["comment"].apply(sentiment_predict)
     df["sent_type"]  = df["sent_score"].apply(lambda x : "positive" if x > 55 else ("negative" if x < 45 else "neutral"))
@@ -43,6 +55,10 @@ def sent_analysis(df) :
 
 # DB에 결과 저장
 def save_to_DB(df) :
+
+    if df is None or df.empty :
+        print("[INFO] 저장할 데이터가 없습니다.")
+        return None
 
     db = DBManager()
     db.DBOpen(
@@ -70,10 +86,6 @@ def save_to_DB(df) :
 def main() :
 
     df = fetch_cont()
-    if df.empty :
-        print("[INFO] 분석할 데이터 없음")
-        return
-
     df = preprocessing(df)
     df = sent_analysis(df)
     save_to_DB(df)
