@@ -1,3 +1,4 @@
+import sys
 import json
 import pandas as pd
 
@@ -8,6 +9,13 @@ from selenium                      import webdriver
 from selenium.webdriver.common.by  import By
 from selenium.webdriver.support.ui import WebDriverWait       as WAIT
 from selenium.webdriver.support    import expected_conditions as EC
+
+if len(sys.argv) < 3 :
+    print("[ERROR] 인자 부족 : 날짜")
+    sys.exit(1)
+
+start_date = sys.argv[1]
+end_date   = sys.argv[2]
 
 ''' ===========================
     Json에서 종목 리스트 불러오기

@@ -1,18 +1,23 @@
 import subprocess
+from datetime import datetime
+
+# datetype = "yyyy.mm.dd"
+start_date = "2024.11.01"
+end_date   = "2025.01.31"
 
 # 실행할 Python 파일
 scripts = [
-    "./cho/discussion_list_crawling.py",
-    "./cho/discussion_post_crawling.py",
-    "./cho/discussion_sentiment.py"
+    ("./cho/discussion_list_crawling.py", [start_date, end_date]),
+    ("./cho/discussion_post_crawling.py", []),
+    ("./cho/discussion_sentiment.py",     [])
 ]
 
-for script in scripts:
+for script, args in scripts:
     try :
         print(f"실행 중: {script}")
 
         #result = subprocess.run(["python", script], capture_output=True, text=True)
-        result = subprocess.run(["python", script], stdout=None, stderr=None, text=True)
+        result = subprocess.run(["python", script, args], stdout=None, stderr=None, text=True)
         #print(result.stdout)
 
         if result.stderr:
