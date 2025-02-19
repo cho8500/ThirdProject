@@ -16,13 +16,10 @@ for script, args in scripts:
     try :
         print(f"[INFO] 실행 중: {script} {''.join(args) if args else ''}")
 
-        result = subprocess.run(["python", script, *args], capture_output=True, text=True)
+        result = subprocess.run(["python", script, *args], stdout=None, stderr=None, text=True)
 
-        if result.stdout :
-            print(f"[OUTPUT] {script}\n{result.stdout}")
-
-        if result.stderr :
-            print(f"[ERROR] {script} 실행 중 오류 발생 :\n{result.stderr}")
+        if result.returncode != 0 :
+            print(f"[ERROR] {script} 실행 중 오류 발생")
             break
 
     except Exception as e :
