@@ -1,5 +1,13 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8"
-    pageEncoding="UTF-8"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ page import="ezen.vo.*" %>
+<%@ page import="ezen.dto.*" %>
+<%@ page import="ezen.dao.*"%>
+<%@ page import="java.util.ArrayList" %>
+
+<%
+String query = request.getParameter("query");
+%>
+
 <!DOCTYPE html>
 <html>
 	<head>
@@ -8,10 +16,6 @@
 		<!-- 스타일 시트 -->
 		<link rel="stylesheet" href="./css/stack.css">
 		<link rel="stylesheet" href="./css/pie.css">
-		
-		<!-- 스크립트 -->
-		<script src="./js/stack.js"></script>
-		<script src="./js/pie.js"></script>
 		
 		<!-- 하이차트 스크립트 -->
 		<script src="https://code.highcharts.com/highcharts.js"></script>
@@ -29,6 +33,9 @@
 		<figure class="highcharts-figure">
 			<div id="piechart"></div>
 		</figure>
-	
-</body>
+		
+		<!-- 스크립트 -->
+		<script src="./js/stack.js"></script>
+		<script src="./js/pie.js"></script>
+	</body>
 </html>

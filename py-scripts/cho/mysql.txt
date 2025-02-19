@@ -39,6 +39,29 @@ CREATE TABLE discussion(
     UNIQUE KEY unique_post (name, code, date, title, link)
 );
 
-# newComments VS discussion
-# 1. title 형식 TEXT VS VARCHAR(255) : 중복 제거를 위해 (date, name, code, title, link) unique 조합
-# 2. view 컬럼 유무 : newsComments는 없고 discussion은 있음
+0219 추가
+
+CREATE TABLE date_table (
+    date DATE PRIMARY KEY
+);
+
+WITH RECURSIVE date_series AS (
+    SELECT DATE('2024-06-01') AS date
+    UNION ALL
+    SELECT DATE_ADD(date, INTERVAL 1 DAY)
+    FROM date_series
+    WHERE date < '2025-01-31'
+)
+SELECT date FROM date_series;
+
+INSERT INTO date_table (date)
+SELECT date FROM (
+    WITH RECURSIVE date_series AS (
+        SELECT DATE('2024-06-01') AS date
+        UNION ALL
+        SELECT DATE_ADD(date, INTERVAL 1 DAY)
+        FROM date_series
+        WHERE date < '2025-01-31'
+    )
+    SELECT date FROM date_series
+) AS temp;
