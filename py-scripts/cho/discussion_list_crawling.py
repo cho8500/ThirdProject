@@ -11,7 +11,7 @@ from selenium.webdriver.support.ui import WebDriverWait       as WAIT
 from selenium.webdriver.support    import expected_conditions as EC
 
 if len(sys.argv) < 3 :
-    print("[ERROR] 인자 부족 : 날짜")
+    print(f"[ERROR] 인자 부족. 인자 개수 : {len(sys.argv)}")
     sys.exit(1)
 
 start_date = sys.argv[1]
@@ -30,8 +30,6 @@ def load_stock_list(json_file) :
 ''' ==============================
     네이버 주식 종목토론방 크롤링하기
     ============================== '''
-# driver.execute_script(url) 방식으로 차단 우회
-# 지정한 날짜가 나올 때까지 10페이지씩 이동 : 크롤링 속도 향상
 def crawl_discussion(name, code, start_date, end_date) :
 
     # 기본 URL
@@ -60,7 +58,7 @@ def crawl_discussion(name, code, start_date, end_date) :
 
     while True :
         try :
-            # 웹 드라이버 로드 대기
+            # driver.execute_script(url) 방식으로 차단 우회
             driver.execute_script(f"window.location.href='{base_url}&page={page}';")
             WAIT(driver, 5).until(EC.presence_of_all_elements_located((By.CSS_SELECTOR, ".type2 tbody")))
 
@@ -187,7 +185,7 @@ def save_to_DB (table_name, df) :
     db.insert_df(table_name, df)
     db.DBClose()
 
-#===========================================================================================
+# ===========================================================================================
 
 '''--------실행--------'''
 if __name__ == "__main__" :
@@ -195,8 +193,8 @@ if __name__ == "__main__" :
     list = load_stock_list("./cho/stock_list.json")
 
     # datetype = "yyyy.mm.dd"
-    start_date = "2024.11.01"
-    end_date   = "2025.01.31"
+    # start_date = "2024.11.01"
+    # end_date   = "2025.01.31"
 
     for name, code in list.items() :
 

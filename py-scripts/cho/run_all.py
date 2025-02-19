@@ -14,16 +14,19 @@ scripts = [
 
 for script, args in scripts:
     try :
-        print(f"실행 중: {script}")
+        print(f"[INFO] 실행 중: {script} {''.join(args) if args else ''}")
 
-        #result = subprocess.run(["python", script], capture_output=True, text=True)
-        result = subprocess.run(["python", script, args], stdout=None, stderr=None, text=True)
-        #print(result.stdout)
+        result = subprocess.run(["python", script, *args], capture_output=True, text=True)
 
-        if result.stderr:
-            print(f"[ERROR] {script}\n{result.stderr}")
+        if result.stdout :
+            print(f"[OUTPUT] {script}\n{result.stdout}")
+
+        if result.stderr :
+            print(f"[ERROR] {script} 실행 중 오류 발생 :\n{result.stderr}")
             break
+
     except Exception as e :
-        print(e)
+        print(f"[ERROR] 예외 발생 : {e}")
+        break
 
 print("[INFO] 모든 스크립트 실행 완료")
