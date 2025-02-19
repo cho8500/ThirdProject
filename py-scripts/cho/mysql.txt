@@ -5,7 +5,7 @@ CREATE TABLE stocks(
     code VARCHAR(10) COMMENT 'stock code'
 );
 
-CREATE TABLE news_comments(
+CREATE TABLE newsComments(
     id INT PRIMARY KEY AUTO_INCREMENT COMMENT 'id',
     date DATE COMMENT 'news date',
     name VARCHAR(50) COMMENT 'stock name',
