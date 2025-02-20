@@ -36,7 +36,7 @@ CREATE TABLE discussion(
     sent_type VARCHAR(20) COMMENT 'positive or negative or neutral',
     sent_score FLOAT DEFAULT 0 COMMENT '0 ~ 100',
     FOREIGN KEY(name) REFERENCES stocks(name),
-    UNIQUE KEY unique_post (name, code, date, title, link)
+    UNIQUE KEY unique_post (name, code, date, title)
 );
 
 0219 추가
