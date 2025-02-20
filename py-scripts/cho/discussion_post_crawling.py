@@ -115,14 +115,14 @@ def process_comment() :
 
         futures = []
 
-        for i, (_, row) in enumerate(urls_df.iterrow()) :
+        for i, row in enumerate(urls_df.itertuples(index=False)) :
 
             if i > 0 and i % max_tasks == 0 :
                 print(f"[INFO] 드라이버 재시작")
                 driver.quit()
                 driver = webdriver.Chrome(options=options)
 
-            future = executor.submit(crawl_comment, row["name"], row["date"], row["link"])
+            future = executor.submit(crawl_comment, row.name, row.date, row.link)
             futures.append((future, row))
             urls[future] = row
 
