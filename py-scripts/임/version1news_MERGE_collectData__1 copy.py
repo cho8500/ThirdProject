@@ -19,13 +19,19 @@ import tensorflow as tf
 
 update = "update "
 # 분석할 종목과 코드 리스트
-list = {
-    "삼성전자" : "005930",
-    "LG전자" : "066570",
-    "SK하이닉스" : "000660",
-    "현대차" : "005380",
-    "더본코리아" : "475560"
+stocksencoding = {
+    "셀트리온": "%BC%BF%C6%AE%B8%AE%BF%C2", 
+    "기아": "%B1%E2%BE%C6", 
+    "두산에너빌리티": "%B5%CE%BB%EA%BF%A1%B3%CA%BA%F4%B8%AE%C6%BC", 
+    "카카오": "%C4%AB%C4%AB%BF%C0", 
+    "한화에어로스페이스": "%C7%D1%C8%AD%BF%A1%BE%EE%B7%CE%BD%BA%C6%E4%C0%CC%BD%BA", 
+    "삼성SDI": "%BB%EF%BC%BASDI", 
+    "한국전력": "%C7%D1%B1%B9%C0%FC%B7%C2", 
+    "LG전자": "LG%C0%FC%C0%DA", 
+    "SK하이닉스": "SK%C7%CF%C0%CC%B4%D0%BD%BA", 
+    "현대차": "%C7%F6%B4%EB%C2%F7"
 }
+
 
 '''
 # 현재 날짜와 시간 가져오기
@@ -64,37 +70,39 @@ for month in range(10, 13):
 
         # _________________________url ext_________________________
 
-        for item, code in list.items() :
+        for item, code in stocksencoding.items() :
 
             # 분석 시작 알림
             print(f"[{item} : {code}] {current_date_dash} 시작...")
 
             # 설정(기간: 당일, 유형: 지면기사)하고 뉴스 검색 url
-            url = f"https://search.naver.com/search.naver?where=news&query={item}&sm=tab_opt&sort=1&photo=3&field=0&pd=3&ds={current_date_withdot}&de={current_date_withdot}&docid=&related=0&mynews=0&office_type=0&office_section_code=0&news_office_checked=&nso=so%3Add%2Cp%3Afrom{current_date_nodot}to{current_date_nodot}&is_sug_officeid=0&office_category=0&service_area=0"
+            url = f"https://finance.naver.com/news/news_search.naver?rcdate=&q={code}&x=0&y=0&sm=all.basic&pd=1&stDateStart={current_date_dash}&stDateEnd={current_date_dash}&page=1"
+            
+            
+            #urlpage = f"https://finance.naver.com/news/news_search.naver?rcdate=&q={code}&x=0&y=0&sm=all.basic&pd=1&stDateStart={date}&stDateEnd={date}&page={page}"
             print(f"URL : {url}")
 
             # 설정대로 뉴스를 검색하고 대기
             driver.get(url)
             try :
-                WAIT(driver, 10).until(EC.presence_of_all_elements_located((By.LINK_TEXT, "네이버뉴스")))
+               # WAIT(driver, 10).until(EC.presence_of_all_elements_located((By.CSS_SELECTOR, "#contentarea_left > div.newsSchResult > span")))
+                WAIT(driver, 10).until(EC.presence_of_all_elements_located((By.CSS_SELECTOR, "#contentarea_left > div.newsSchResult._replaceNewsLink > p")))
             except Exception :
                 print(f"{item} & page={url} 데이터 로드 실패")
                 break
 
-            # 스크롤 끝까지 내리기
-            while True :
-                before = driver.execute_script('return document.body.scrollHeight')
-                driver.execute_script("window.scrollTo(0, document.body.scrollHeight)")
-                time.sleep(1)
-
-                # 스크롤이 더 이상 내려가지 않으면 break
-                after = driver.execute_script('return document.body.scrollHeight')
-                if before == after :
-                    break
-
+            newsint = driver.find_elements(By.CSS_SELECTOR, "#contentarea_left > div.newsSchResult._replaceNewsLink > p")
+           
+            # 빈 리스트인지 확인
+            if newsint:
+                print("뉴스 링크 추출 성공")
+            else:
+                print("뉴스 링크가 없습니다")
             # 추출할 링크 선택
-            sel_news = driver.find_elements(By.LINK_TEXT, '네이버뉴스')
-
+        
+            print(f"뉴스 개수{newsint}")
+            exit()
+            
             if len(sel_news) == 0 :
                 print(f"{item}에 관한 {current_date_dash} 검색된 기사가 없습니다.")
                 continue
