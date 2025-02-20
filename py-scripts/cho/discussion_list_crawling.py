@@ -40,7 +40,8 @@ def crawl_discussion(name, code, start_date, end_date) :
     options.add_argument("--headless")              # 백그라운드 실행
     options.add_argument("--window-size=1920x1080") # 해상도 설정
 
-    # options.add_argument("--disable-gpu") # GPU 가속 비활성화
+    options.add_argument("--disable-gpu") # GPU 가속 비활성화
+    options.add_argument("--no-sandbox") # 샌드박스 모드해제
     # options.add_argument("--log-level=3") # 불필요한 로그 제거
     # options.add_argument("--disable-infobars") # 안내메시지 제거
     # options.add_argument("--disabled-extensions") # 불필요한 확장프로그램 로드 방지
@@ -60,7 +61,7 @@ def crawl_discussion(name, code, start_date, end_date) :
         try :
             # driver.execute_script(url) 방식으로 차단 우회
             driver.execute_script(f"window.location.href='{base_url}&page={page}';")
-            WAIT(driver, 5).until(EC.presence_of_all_elements_located((By.CSS_SELECTOR, ".type2 tbody")))
+            WAIT(driver, 10).until(EC.presence_of_all_elements_located((By.CSS_SELECTOR, ".type2 tbody")))
 
             soup = BeautifulSoup(driver.page_source, "html.parser")
             rows = soup.select(".type2 tbody tr")
@@ -113,6 +114,7 @@ def crawl_discussion(name, code, start_date, end_date) :
                         if len(cols) < 5 :
                             continue
 
+                        first_date     = cols[0].text.strip()[:10]
                         title_tag      = cols[1]
                         cleanbot_title = title_tag.select_one(".cleanbot_list_blind")
 
@@ -141,7 +143,7 @@ def crawl_discussion(name, code, start_date, end_date) :
 
                     page += 1
                     driver.execute_script(f"window.location.href='{base_url}&page={page}';")
-                    WAIT(driver, 5).until(EC.presence_of_all_elements_located((By.CSS_SELECTOR, ".type2 tbody")))
+                    WAIT(driver, 10).until(EC.presence_of_all_elements_located((By.CSS_SELECTOR, ".type2 tbody")))
 
                 break
 

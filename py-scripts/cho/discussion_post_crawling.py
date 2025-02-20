@@ -27,7 +27,7 @@ def fetch_URLs() :
         # pw     = "chogh"
     )
 
-    sql = "SELECT id, link FROM discussion WHERE comment IS NULL"
+    sql = "SELECT id, name, date, link FROM discussion WHERE comment IS NULL"
 
     df = db.fetch_DF(sql)
     db.DBClose()
@@ -37,19 +37,22 @@ def fetch_URLs() :
 '''=====================================
    게시글 내용을 크롤링 하고 COMMENT를 반환
    ====================================='''
-def crawl_comment(url) :
+def crawl_comment(name, date, url, driver=None) :
 
-    options = webdriver.ChromeOptions()
-    options.add_argument("--headless")
-    options.add_argument("--window-size=1920x1080")
-    options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.51 Safari/537.36")
-
-    driver  = webdriver.Chrome(options = options)
-
-    comment = None
+    comment    = None
+    close_flag = False
 
     try :
-        print(f"[크롤링 시작] {url}")
+        if driver is None :
+            options = webdriver.ChromeOptions()
+            options.add_argument("--headless")
+            options.add_argument("--window-size=1920x1080")
+            options.add_argument("--disable-gpu")
+            options.add_argument("--no-sandbox")
+            driver     = webdriver.Chrome(options=options)
+            close_flag = True
+
+        print(f"[크롤링 시작] [{name}] {date} : {url}")
 
         driver.get(url)
         WAIT(driver, 10).until(EC.presence_of_all_elements_located((By.CSS_SELECTOR, ".view_se")))
@@ -63,7 +66,8 @@ def crawl_comment(url) :
         print(f"[크롤링 오류] {e}")
 
     finally :
-        driver.quit()
+        if close_flag :
+            driver.quit()
 
     return comment
 
@@ -97,31 +101,45 @@ def process_comment() :
     result      = []
     failed_urls = []
 
+    options = webdriver.ChromeOptions()
+    options.add_argument("--headless")
+    options.add_argument("--window-size=1920x1080")
+    options.add_argument("--disable-gpu")
+    options.add_argument("--no-sandbox")
+    driver  = webdriver.Chrome(options=options)
+
+    max_tasks = 10
+
     # ThreadPoolExecutor : 최대 10개 스레드 병렬 실행
     with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor :
 
-        for _, row in urls_df.iterrows() :
-            future = executor.submit(crawl_comment, row["link"])
+        futures = []
+
+        for i, (_, row) in enumerate(urls_df.iterrow()) :
+
+            if i > 0 and i % max_tasks == 0 :
+                print(f"[INFO] 드라이버 재시작")
+                driver.quit()
+                driver = webdriver.Chrome(options=options)
+
+            future = executor.submit(crawl_comment, row["name"], row["date"], row["link"])
+            futures.append((future, row))
             urls[future] = row
 
-        for future in concurrent.futures.as_completed(urls) :
-
-            row = urls[future]
-
+        for future, row in futures :
             try :
                 comment = future.result()
 
                 if comment :
-                    result.append((
-                        comment,
-                        row["id"]
-                    ))
+                    result.append((comment, row["id"]))
                 else :
                     failed_urls.append(row["link"])
 
             except Exception as e :
-                print(f"[크롤링 오류] {row['link']} - {e}")
+                print(f"[크롤링 오류] {row['link']} :: {e}")
                 failed_urls.append(row["link"])
+
+    driver.quit()
 
     if result :
         print(f"[INFO] {len(result)}개 데이터 저장 중...")
