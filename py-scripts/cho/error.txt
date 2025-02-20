@@ -29,7 +29,7 @@ Stacktrace:
         (No symbol) [0x00007FF70910A49D]
         (No symbol) [0x00007FF7090F8B69]
         BaseThreadInitThunk [0x00007FFCCF267374+20]
-        RtlUserThreadStart [0x00007FFCD027CC91+33]
+        RtlUserThreadStart [0x00007FFCD027CC91+33] 
 
 [184472:184476:0219/180146.239:ERROR:gpu_process_host.cc(981)] GPU process exited unexpectedly: exit_code=34
 
