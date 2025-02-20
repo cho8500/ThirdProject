@@ -1,3 +1,4 @@
+import sys
 import json
 import pandas as pd
 
@@ -8,6 +9,13 @@ from selenium                      import webdriver
 from selenium.webdriver.common.by  import By
 from selenium.webdriver.support.ui import WebDriverWait       as WAIT
 from selenium.webdriver.support    import expected_conditions as EC
+
+if len(sys.argv) < 3 :
+    print(f"[ERROR] 인자 부족. 인자 개수 : {len(sys.argv)}")
+    sys.exit(1)
+
+start_date = sys.argv[1]
+end_date   = sys.argv[2]
 
 ''' ===========================
     Json에서 종목 리스트 불러오기
@@ -22,8 +30,6 @@ def load_stock_list(json_file) :
 ''' ==============================
     네이버 주식 종목토론방 크롤링하기
     ============================== '''
-# driver.execute_script(url) 방식으로 차단 우회
-# 지정한 날짜가 나올 때까지 10페이지씩 이동 : 크롤링 속도 향상
 def crawl_discussion(name, code, start_date, end_date) :
 
     # 기본 URL
@@ -31,10 +37,11 @@ def crawl_discussion(name, code, start_date, end_date) :
 
     # Selenium 설정
     options = webdriver.ChromeOptions()
-    options.add_argument("--headless") # 백그라운드 실행
+    options.add_argument("--headless")              # 백그라운드 실행
     options.add_argument("--window-size=1920x1080") # 해상도 설정
 
-    # options.add_argument("--disable-gpu") # GPU 가속 비활성화
+    options.add_argument("--disable-gpu") # GPU 가속 비활성화
+    options.add_argument("--no-sandbox") # 샌드박스 모드해제
     # options.add_argument("--log-level=3") # 불필요한 로그 제거
     # options.add_argument("--disable-infobars") # 안내메시지 제거
     # options.add_argument("--disabled-extensions") # 불필요한 확장프로그램 로드 방지
@@ -52,9 +59,9 @@ def crawl_discussion(name, code, start_date, end_date) :
 
     while True :
         try :
-            # 웹 드라이버 로드 대기
+            # driver.execute_script(url) 방식으로 차단 우회
             driver.execute_script(f"window.location.href='{base_url}&page={page}';")
-            WAIT(driver, 5).until(EC.presence_of_all_elements_located((By.CSS_SELECTOR, ".type2 tbody")))
+            WAIT(driver, 10).until(EC.presence_of_all_elements_located((By.CSS_SELECTOR, ".type2 tbody")))
 
             soup = BeautifulSoup(driver.page_source, "html.parser")
             rows = soup.select(".type2 tbody tr")
@@ -84,11 +91,11 @@ def crawl_discussion(name, code, start_date, end_date) :
             date_diff     = abs((first_date_dt - end_date_dt).days)
 
             if date_diff >= 15 :
-                step_size = 100
-            elif 7 <= date_diff < 15 :
                 step_size = 50
-            elif 2 <= date_diff < 7 :
+            elif 7 <= date_diff < 15 :
                 step_size = 10
+            elif 3 <= date_diff < 7 :
+                step_size = 2
             else :
                 step_size = 1
 
@@ -107,6 +114,7 @@ def crawl_discussion(name, code, start_date, end_date) :
                         if len(cols) < 5 :
                             continue
 
+                        first_date     = cols[0].text.strip()[:10]
                         title_tag      = cols[1]
                         cleanbot_title = title_tag.select_one(".cleanbot_list_blind")
 
@@ -135,7 +143,7 @@ def crawl_discussion(name, code, start_date, end_date) :
 
                     page += 1
                     driver.execute_script(f"window.location.href='{base_url}&page={page}';")
-                    WAIT(driver, 5).until(EC.presence_of_all_elements_located((By.CSS_SELECTOR, ".type2 tbody")))
+                    WAIT(driver, 10).until(EC.presence_of_all_elements_located((By.CSS_SELECTOR, ".type2 tbody")))
 
                 break
 
@@ -179,7 +187,7 @@ def save_to_DB (table_name, df) :
     db.insert_df(table_name, df)
     db.DBClose()
 
-#===========================================================================================
+# ===========================================================================================
 
 '''--------실행--------'''
 if __name__ == "__main__" :
@@ -187,8 +195,8 @@ if __name__ == "__main__" :
     list = load_stock_list("./cho/stock_list.json")
 
     # datetype = "yyyy.mm.dd"
-    start_date = "2024.11.01"
-    end_date   = "2025.01.31"
+    # start_date = "2024.11.01"
+    # end_date   = "2025.01.31"
 
     for name, code in list.items() :
 

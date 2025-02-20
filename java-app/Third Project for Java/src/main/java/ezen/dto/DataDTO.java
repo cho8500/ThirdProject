@@ -40,41 +40,5 @@ public class DataDTO extends DbManager
 		return stock_list;
 	}
 	
-	public ArrayList<DataVO> getChartData()
-	{
-		String sql = "";
-		sql += "SELECT ";
-		sql +=		"d.date, ";
-		sql +=		"s.name, ";
-		sql +=		"s.code, ";
-		sql +=		"s.sise, ";
-		sql +=		"COALESCE(t.score, 0) AS score, ";
-		sql +=		"COALESCE(t.news_count, 0) AS news_count ";
-		sql += "FROM date_series d ";
-		sql += "JOIN sise_data s ON d.date = s.date ";
-		sql += "LEFT JOIN total_result t ON d.date = t.date AND s.name = t.name ";
-		sql += "ORDER BY d.date ASC, s.name ASC;";
-		
-		System.out.println("[SQL] " + sql);
-		
-		this.driverLoad();
-		this.dbConnect();
-		this.executeQuery(sql);
-		
-		ArrayList<DataVO> data_list = new ArrayList<DataVO>();
-		
-		while(this.next())
-		{
-			DataVO vo = new DataVO();
-			
-			vo.setDate(this.getString("date"));
-			vo.setName(this.getString("name"));
-			vo.setCode(this.getString("code"));
-			
-			data_list.add(vo);
-		}
-		this.dbDisConnect();
-		
-		return data_list;
-	}
+	/* stack 그래프 데이터 불러오기 */
 }

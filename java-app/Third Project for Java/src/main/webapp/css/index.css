@@ -1,0 +1,76 @@
+@charset "UTF-8";
+
+body {
+	font-family: Arial, sans-serif;
+	text-align: center;
+}
+
+/* 로고 */
+#main_logo {
+	margin: auto;
+	width: 100%;
+	padding-top: 100px;
+	text-align: center;
+}
+
+#logo_img {
+	width: 500px;
+}
+
+/* 검색창 */
+#search_container {
+	position: relative;
+	display: flex;
+	justify-content: center;
+	margin-top: 50px;
+}
+
+#query {
+	width: 300px;
+	height: 30px;
+	padding: 5px 40px 5px 15px;
+	border-radius: 20px;
+	border: 1px solid #ccc;
+	outline: none;
+	font-size: 12px;
+	text-align: left;
+}
+
+#search_button {
+	position: absolute;
+	top: 50%;
+	transform: translateY(-50%);
+	background: none;
+	border: none;
+	cursor: pointer;
+}
+
+#search_button img {
+	width: 24px;
+	height: 24px;
+}
+
+/* 자동완성 */
+#autocomplete_list {
+	position: absolute;
+	top: 50px;
+	width: 320px;
+	border: 1px solid #ccc;
+	border-radius: 5px;
+	background: white;
+	display: none;
+	overflow-y: auto;
+	z-index: 10;
+	text-align: left;
+	font-size: 12px;
+}
+
+#autocomplete_list div {
+	padding: 12px 20px;
+	cursor: pointer;
+}
+
+#autocomplete_list div:hover {
+	background: #f0f0f0;
+	font-weight: bold;
+}
