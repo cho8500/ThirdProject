@@ -132,7 +132,7 @@ class DBManager :
         try:
             self.cursor = self.con.cursor()
             for index, row in df.iterrows():
-                update_sql = f"UPDATE news_comments SET analysis = 'T', sent_type = '{row['evaluation']}', sent_score = {row['score']} WHERE comment = '{row['comment']}'"
+                update_sql = f"UPDATE newsComments SET analysis = 'T', sent_type = '{row['sent_type']}', sent_score = {row['sent_score']} WHERE comment = '{row['comment']}'"
                 print(f"sql : {update_sql}")
                 self.cursor.execute(update_sql)
             self.con.commit()
