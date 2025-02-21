@@ -15,8 +15,10 @@ import requests
 import pandas as pd
 import __LSTM.predic as pr
 import tensorflow as tf
+import re
 
 # 분석할 종목과 코드 리스트
+'''
 stocksencoding = {
     "셀트리온": "%BC%BF%C6%AE%B8%AE%BF%C2", 
     "기아": "%B1%E2%BE%C6", 
@@ -28,6 +30,11 @@ stocksencoding = {
     "LG전자": "LG%C0%FC%C0%DA", 
     "SK하이닉스": "SK%C7%CF%C0%CC%B4%D0%BD%BA", 
     "현대차": "%C7%F6%B4%EB%C2%F7"
+}
+'''
+### 실험중 나중에 삭제 예정
+stocksencoding = {
+    "기아": "%B1%E2%BE%C6" 
 }
 
 
@@ -66,36 +73,66 @@ for month in range(10, 13):
             print(f"[{item} : {code}] {current_date_dash} 시작...")
 
             # 설정(기간: 당일, 유형: 지면기사)하고 뉴스 검색 URL
-            url = f"https://finance.naver.com/news/news_search.naver?rcdate=&q={code}&x=0&y=0&sm=all.basic&pd=1&stDateStart={current_date_dash}&stDateEnd={current_date_dash}&page=1"
+            url = f"https://finance.naver.com/news/news_search.naver?rcdate=&q={code}&x=0&y=0&sm=all.basic&pd=1&stDateStart={current_date_dash}&stDateEnd={current_date_dash}"
             print(f"URL : {url}")
-
+            
             # 설정대로 뉴스를 검색하고 대기
             driver.get(url)
             try:
                 WAIT(driver, 10).until(EC.presence_of_all_elements_located((By.CSS_SELECTOR, ".pgRR")))
             except Exception:
                 print(f"{item} & page={url} 맨뒤 버튼 없음 ")
-
-            lastpage = driver.find_elements(By.CSS_SELECTOR, ".pgRR")
-
+            
+            lastpageBtn = driver.find_element(By.CSS_SELECTOR, ".pgRR")
+            
             # 빈 리스트인지 확인
-            flag = True
-            while flag:
-                if len(lastpage) > 0:
-                    print("맨뒤 버튼이 존재합니다")
-                    lastpage[0].click()
-                    flag = False
-                else:
-                    flag = False
-                
-            lastpageint = driver.find_elements(By.CSS_SELECTOR, ".Nnavi .on a")
+            if lastpageBtn:
+                print("맨뒤 버튼이 존재합니다")
+                WAIT(driver, 10).until(EC.element_to_be_clickable((By.CSS_SELECTOR, ".pgRR")))
+                #요소로 스크롤 이동
+                driver.execute_script("arguments[0].scrollIntoView();", lastpageBtn)
+                lastpageBtn.click()
+                print("맨뒤 버튼을 클릭합니다")
+                time.sleep(2)
+                current_url = driver.current_url
+                match = re.search(r'page=(\d+)', current_url)
+                lastpage = int(match.group(1)) if match else 1
+            else:
+                lastpage = 1
             
-            print(f"lastpageint++++++++++++{lastpageint}")
+            current_url = driver.current_url
+            print(f"현재 페이지 URL: {current_url}")
             
+            lastpage = 1
+            match = re.search(r'page=(\d+)', current_url)
+            if match:
+                lastpage = match.group(1)
+                print(f'Page number: {lastpage}')
+            else:
+                print('Page number not found')
             
-            
-            
+            urllist = []
+            #driver.get(url)
+            for page in range (1, int(lastpage) + 1) :
+                driver.get(f"{url}&page={page}")
+                time.sleep(3)
+                try:
+                    WAIT(driver, 10).until(EC.presence_of_all_elements_located((By.CSS_SELECTOR, ".articleSubject")))
+                    page_source = driver.page_source
+                    soup = BeautifulSoup(page_source, "html.parser")
+                    article_subjects = soup.select(".articleSubject a")
+                    for subject in article_subjects:
+                            link = subject.get("href")
+                            if link :
+                                urllist.append(link)
+                    if lastpage == lastpage:
+                        break
+                except Exception:
+                    print(f"{item} & page={url} 기사 없음 ")
 
+            print(f"urllist{urllist}")
+            print(f"url_int{len(urllist)}")
+            exit()
             # 추출할 링크 선택
             '''
             print("exit를 실행합니다")
