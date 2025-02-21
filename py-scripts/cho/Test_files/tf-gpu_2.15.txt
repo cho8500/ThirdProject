@@ -1,0 +1,21 @@
+# 가상환경 활성화
+conda activate tf-gpu
+
+# 기존 TensorFlow 제거
+pip uninstall tensorflow tensorflow-gpu -y
+
+# Python 버전 업그레이드 (python 3.8 ~ 3.11 지원)
+conda install python=3.9 -y
+
+# CUDA/cuDNN 설치
+conda install -c conda-forge cudatoolkit=12.2 cudnn=8.9 -y
+
+# 최신 TensorFlow 설치
+pip install tensorflow==2.15
+
+# 필수 라이브러리 설치
+conda install numpy pandas matplotlib tqdm jpype1 -y
+pip install konlpy
+
+# HDF5 최신 버전 설치
+conda install -c conda-forge hdf5 -y
