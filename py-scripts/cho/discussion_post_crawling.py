@@ -27,6 +27,8 @@ def fetch_URLs() :
         # pw     = "chogh"
     )
 
+    # 한 종목 끝나면 DB에 UPDATE 하도록 변경 > 지금은 일괄로 넣기 때문에 중간에 끊기면 다 날아감
+    # 0221 수정사항 : LIMIT 추가해서 한번에 불러와 처리하는 용량 제한 > 성능향상 가능
     sql = "SELECT id, name, date, link FROM discussion WHERE comment IS NULL"
 
     df = db.fetch_DF(sql)

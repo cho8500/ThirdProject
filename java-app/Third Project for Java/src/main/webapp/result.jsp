@@ -6,6 +6,7 @@
 
 <%
 String query = request.getParameter("query");
+String day   = request.getParameter("day");
 %>
 
 <!DOCTYPE html>

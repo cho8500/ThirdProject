@@ -17,6 +17,7 @@ def fetch_cont() :
         # pw     = "chogh"
     )
 
+    # 0221 수정사항 : LIMIT 추가해서 한번에 불러와 처리하는 용량 제한 > 성능향상 가능
     sql = "SELECT id, title, comment FROM discussion WHERE analysis = 'F'"
 
     df = db.fetch_DF(sql)
