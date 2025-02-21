@@ -6,9 +6,9 @@
 
 <%
 DataDTO dto = new DataDTO();
-ArrayList<DataVO> stock_list = dto.getStockNames();
+ArrayList<DataVO> stockNames = dto.getStockNames();
 
-System.out.println("[데이터 로드] size: " + stock_list.size());
+System.out.println("[데이터 로드] size: " + stockNames.size());
 %>
 <!DOCTYPE html>
 <html>
@@ -26,6 +26,7 @@ System.out.println("[데이터 로드] size: " + stock_list.size());
 		<!-- 검색창 -->
 		<div id="search_container">
 			<form action="result.jsp" method="GET">
+				<input type="hidden" name="day" value="7">
 				<input type="text" id="query" name="query" placeholder="종목의 이름 또는 코드를 입력하세요"
 					onkeyup="javascript:autoComplete()"
 					onblur="javascript:hideAutoComplete()"
@@ -41,11 +42,11 @@ System.out.println("[데이터 로드] size: " + stock_list.size());
 		<script>
 		let stockData = [
 			<%
-			for(int i = 0; i < stock_list.size(); i++)
+			for(int i = 0; i < stockNames.size(); i++)
 			{
-				DataVO vo = stock_list.get(i);
+				DataVO vo = stockNames.get(i);
 				%>
-				{ name : "<%= vo.getName() %>", code : "<%= vo.getCode() %>"}<%= (i < stock_list.size() - 1) ? "," : "" %>
+				{ name : "<%= vo.getName() %>", code : "<%= vo.getCode() %>"}<%= (i < stockNames.size() - 1) ? "," : "" %>
 				<%
 			}
 			%>
