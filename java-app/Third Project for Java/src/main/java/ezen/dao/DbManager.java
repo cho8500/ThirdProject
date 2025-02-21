@@ -1,10 +1,10 @@
 package ezen.dao;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import org.apache.commons.dbcp2.BasicDataSource;
 
 // 데이터에 접근할 수 있는 메소드를 담은 DAO 클래스
 public class DbManager
@@ -13,31 +13,32 @@ public class DbManager
 	Statement  stmt = null;
 	ResultSet  rs   = null;
 	
-//	Driver loading
-	public void driverLoad()
-	{
-		try {
-			Class.forName("com.mysql.cj.jdbc.Driver");
-		} 
-		catch (ClassNotFoundException e) {
-			e.printStackTrace();
-			System.out.println("드라이버 로드 실패");
-			}
-	}
+	private static BasicDataSource dataSource;
 	
-//	Database connection
+	static {
+		String className = "com.mysql.cj.jdbc.Driver";
+		String url       = "jdbc:mysql://192.168.0.184:3306/third_project";
+		String id        = "cho";
+		String pw        = "ezen";
+		
+		dataSource = new BasicDataSource();
+		dataSource.setDriverClassName(className);
+		dataSource.setUrl(url);
+		dataSource.setUsername(id);
+		dataSource.setPassword(pw);
+		
+		// Pool 설정
+		dataSource.setInitialSize(5);	// 초기 연결 수
+		dataSource.setMaxTotal(20);		// 최대 연결 수
+		dataSource.setMaxIdle(10);		// 최대 idle 연결 수
+		dataSource.setMinIdle(5);		// 최소 idle 연결 수
+	}
+
+	//	Database connection
 	public void dbConnect()
 	{
-		String url = "jdbc:mysql://192.168.0.184:3306/third_project";
-		String id  = "cho";
-		String pw  = "ezen";
-		
-//		String url = "jdbc:mysql://localhost:3306/third_project";
-//		String id  = "root";
-//		String pw  = "chogh";
-
 		try {
-			conn = DriverManager.getConnection(url, id, pw);
+			conn = dataSource.getConnection();
 		}
 		catch (SQLException e) {
 			System.out.println("데이터베이스 연결 실패");
@@ -58,11 +59,16 @@ public class DbManager
 //	Execute query; select
 	public void executeQuery(String sql)
 	{
-		try { stmt = conn.createStatement(); } 
-		catch (SQLException e) { e.printStackTrace(); }
-		
-		try { rs = stmt.executeQuery(sql); }
-		catch (SQLException e) { e.printStackTrace(); }
+		try
+		{
+			stmt = conn.createStatement(); 
+			rs   = stmt.executeQuery(sql);
+		}
+		catch (SQLException e)
+		{
+			e.printStackTrace();
+			dbDisConnect();
+		}
 	}
 	
 	public boolean next()

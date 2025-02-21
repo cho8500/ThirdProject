@@ -19,7 +19,6 @@ public class DataDTO extends DbManager
 		
 		System.out.println("[SQL] " + sql);
 		
-		this.driverLoad();
 		this.dbConnect();
 		this.executeQuery(sql);
 		
@@ -51,12 +50,11 @@ public class DataDTO extends DbManager
 		sql += "CROSS JOIN (SELECT 'positive' AS sent_type UNION ALL ";
 		sql +=        "SELECT 'negative' UNION ALL ";
 		sql +=        "SELECT 'neutral') st ";
-		sql += "LEFT JOIN useless_news_comments unc ";
-		sql +=        "ON unc.date = dt.date ";
-		sql +=        "AND unc.sent_type = st.sent_type ";
-		sql +=        "AND unc.name ={name} ";
-//		sql += "WHERE dt.date BETWEEN CURDATE() - INTERVAL {day} DAY AND CURDATE() ";
-		sql += "WHERE dt.date BETWEEN '2024-11-01' AND '2025-01-31' ";
+		sql += "LEFT JOIN newsComment nc ";
+		sql +=        "ON nc.date = dt.date ";
+		sql +=        "AND nc.sent_type = st.sent_type ";
+		sql +=        "AND nc.name = '" + query + "' ";
+		sql += "WHERE dt.date BETWEEN CURDATE() - INTERVAL " + day + " DAY AND CURDATE() ";
 		sql += "GROUP BY dt.date, st.sent_type ";
 		sql += "ORDER BY dt.date ASC, ";
 		sql +=        "CASE st.sent_type ";
@@ -67,7 +65,6 @@ public class DataDTO extends DbManager
 		
 		System.out.println("[SQL] " + sql);
 		
-		this.driverLoad();
 		this.dbConnect();
 		this.executeQuery(sql);
 		
@@ -107,6 +104,7 @@ public class DataDTO extends DbManager
 		
 		sql += "SELECT ta.title, ";
 		sql +=        "ta.date, ";
+		sql +=        "ta.link, ";
 		sql +=        "ta.comment_count, ";
 		sql +=        "LEFT(c.comment, 50) AS comment, ";
 		sql +=        "c.up ";
@@ -123,7 +121,6 @@ public class DataDTO extends DbManager
 		
 		System.out.println("[SQL] " + sql);
 		
-		this.driverLoad();
 		this.dbConnect();
 		this.executeQuery(sql);
 		
