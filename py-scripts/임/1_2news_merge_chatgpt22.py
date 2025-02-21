@@ -11,6 +11,7 @@ from DBManager import DBManager
 import time
 import pandas as pd
 import __LSTM.predic as pr
+from  datetime import datetime, timedelta
 
 import re
 def extract_kr_en_cn(inputString): # 한글만 받아오기
@@ -113,34 +114,41 @@ def update_analysis_in_db(comments, scores, evaluations):
     db.DBClose()
     print(f"[INFO] 감성 분석 결과 업데이트 완료!")
 
+
 def main():
     driver = setup_driver()
     
-    for month in range(10, 13):
-        for day in range(1, 32 if month != 11 else 31):
-            date_str = f"2024.{month:02}.{day:02}"
+    # 시작 날짜와 종료 날짜 설정
+    start_date = datetime(2024, 11, 1)
+    end_date = datetime(2025, 1, 31)
+    
+    # current_date를 시작 날짜로 초기화
+    current_date = start_date
+    
+    while current_date <= end_date:
+        date_str = current_date.strftime("%Y.%m.%d")
+        
+        for stock_name, stock_code in stocks.items():
+            print(f"[INFO] {stock_name} ({stock_code}) - {date_str} 기사 수집 시작")
+            article_links = fetch_news_links(driver, stock_name, stock_code, date_str)
             
-            for stock_name, stock_code in stocks.items():
-                print(f"[INFO] {stock_name} ({stock_code}) - {date_str} 기사 수집 시작")
-                article_links = fetch_news_links(driver, stock_name, stock_code, date_str)
+            if not article_links:
+                continue
+            
+            for article_url in article_links:
+                print(f"[INFO] {article_url} 기사 분석 중")
                 
-                if not article_links:
+                title, comments, recomms, unrecomms = fetch_comments(driver, article_url)
+                
+                if not comments:
                     continue
                 
-                for article_url in article_links:
-                    print(f"[INFO] {article_url} 기사 분석 중")
-                    
-                    title, comments, recomms, unrecomms = fetch_comments(driver, article_url)
-                    
-                    if not comments:
-                        continue
-                    
-                    insert_into_db(date_str, stock_name, stock_code, title, article_url, recomms, unrecomms, comments)
-                    
-                    scores, evaluations = analyze_comments(comments)
-                    update_analysis_in_db(comments, scores, evaluations)
-                    
-    driver.quit()
+                insert_into_db(date_str, stock_name, stock_code, title, article_url, recomms, unrecomms, comments)
+                
+                scores, evaluations = analyze_comments(comments)
+                update_analysis_in_db(comments, scores, evaluations)
+                
+        current_date += timedelta(days=1)
 
 if __name__ == "__main__":
     main()

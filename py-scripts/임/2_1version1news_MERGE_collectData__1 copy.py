@@ -85,24 +85,26 @@ for month in range(10, 13):
             # 설정대로 뉴스를 검색하고 대기
             driver.get(url)
             try :
-               # WAIT(driver, 10).until(EC.presence_of_all_elements_located((By.CSS_SELECTOR, "#contentarea_left > div.newsSchResult > span")))
-                WAIT(driver, 10).until(EC.presence_of_all_elements_located((By.CSS_SELECTOR, "#contentarea_left > div.newsSchResult._replaceNewsLink > p")))
+                WAIT(driver, 10).until(EC.presence_of_all_elements_located((By.LINK_TEXT, "맨뒤 ")))
             except Exception :
-                print(f"{item} & page={url} 데이터 로드 실패")
-                break
+                print(f"{item} & page={url} 맨뒤 버튼 없음 ")
+                continue
 
-            newsint = driver.find_elements(By.CSS_SELECTOR, "#contentarea_left > div.newsSchResult._replaceNewsLink > p")
+            lastpage = driver.find_elements(By.LINK_TEXT, "맨뒤")
            
             # 빈 리스트인지 확인
-            if newsint:
-                print("뉴스 링크 추출 성공")
-            else:
-                print("뉴스 링크가 없습니다")
+            flag = True
+            print
+            while flag :
+                if not lastpage.empty:
+                    print("맨뒤 버튼이 존재합니다")
+                    lastpage.click()
+                else:
+                    flag = False
             # 추출할 링크 선택
-        
-            print(f"뉴스 개수{newsint}")
+                ############
             exit()
-            
+            '''
             if len(sel_news) == 0 :
                 print(f"{item}에 관한 {current_date_dash} 검색된 기사가 없습니다.")
                 continue
@@ -270,3 +272,4 @@ for month in range(10, 13):
 
                 db.DBClose()
                 #exit()
+                '''
