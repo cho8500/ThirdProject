@@ -1,0 +1,34 @@
+# 가상환경 비활성화
+conda deactivate
+
+# 가상환경 삭제
+conda env remove -n tf-gpu -y
+
+# 가상환경 만들기
+# 텐서플로우 2.3 -> 파이썬 3.7 3.8
+conda create -n tf-gpu python=3.7 -y
+
+# 가상환경 비활성화
+conda deactivate
+
+# 가상환경 활성화
+conda activate tf-gpu
+
+# 저장소 채널 추가
+conda config --add channels conda-forge
+
+# 실습 PC의 GTX 960이 지원하는 마지막 텐서플로우 버전 설치
+pip install tensorflow-gpu==2.3.0
+
+# 텐서플로우를 GPU에서 실행하기 위한 쿠다 툴과 DNN 라이브러리 설치
+conda install cudatoolkit=10.1 cudnn=7.6 -y
+
+# 필요한 라이브러리 설치
+conda install numpy=1.18.5 pandas matplotlib tqdm -y
+
+# konlpy는 jpype1를 필요로 함
+conda install jpype1 -y
+pip install konlpy
+
+# HDF5 버전 불일치 해결
+conda install -c conda-forge hdf5=1.10.6 -y

@@ -1,5 +1,3 @@
-import time
-import pymysql
 import concurrent.futures
 
 from bs4                           import BeautifulSoup
@@ -13,25 +11,24 @@ from DBManager import DBManager
 '''===========================
    DB에서 크롤링 할 URL 가져오기
    ==========================='''
-def fetch_URLs() :
+def fetch_URLs(limit=1000) :
 
     db = DBManager()
     db.DBOpen(
-        host   = "192.168.0.184",
-        dbname = "third_project",
-        id     = "cho",
-        pw     = "ezen"
-        # host   = "localhost",
+        # host   = "192.168.0.184",
         # dbname = "third_project",
-        # id     = "root",
-        # pw     = "chogh"
+        # id     = "cho",
+        # pw     = "ezen"
+        host   = "localhost",
+        dbname = "third_project",
+        id     = "root",
+        pw     = "chogh"
     )
 
     # 한 종목 끝나면 DB에 UPDATE 하도록 변경 > 지금은 일괄로 넣기 때문에 중간에 끊기면 다 날아감
     # 0221 수정사항 : LIMIT 추가해서 한번에 불러와 처리하는 용량 제한 > 성능향상 가능
-    sql = "SELECT id, name, date, link FROM discussion WHERE comment IS NULL"
-
-    df = db.fetch_DF(sql)
+    sql = f"SELECT id, name, date, link FROM discussion WHERE comment IS NULL LIMIT {limit}"
+    df  = db.fetch_DF(sql)
     db.DBClose()
 
     return df
@@ -39,25 +36,14 @@ def fetch_URLs() :
 '''=====================================
    게시글 내용을 크롤링 하고 COMMENT를 반환
    ====================================='''
-def crawl_comment(name, date, url, driver=None) :
+def crawl_comment(name, date, url, driver) :
 
     comment    = None
-    close_flag = False
 
     try :
-        if driver is None :
-            options = webdriver.ChromeOptions()
-            options.add_argument("--headless")
-            options.add_argument("--window-size=1920x1080")
-            options.add_argument("--disable-gpu")
-            options.add_argument("--no-sandbox")
-            driver     = webdriver.Chrome(options=options)
-            close_flag = True
-
-        print(f"[크롤링 시작] [{name}] {date} : {url}")
-
+        print(f"[INFO] 크롤링 시작 [{name}] {date} : {url}")
         driver.get(url)
-        WAIT(driver, 10).until(EC.presence_of_all_elements_located((By.CSS_SELECTOR, ".view_se")))
+        WAIT(driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, ".view_se")))
         soup        = BeautifulSoup(driver.page_source, "html.parser")
         comment_div = soup.select_one(".view_se")
 
@@ -65,107 +51,111 @@ def crawl_comment(name, date, url, driver=None) :
             comment = " ".join(comment_div.get_text(strip=True).replace("\n", " ").split())
 
     except Exception as e :
-        print(f"[크롤링 오류] {e}")
-
-    finally :
-        if close_flag :
-            driver.quit()
+        print(f"[ERROR] 크롤링 오류 : {e}")
 
     return comment
 
-'''============================
-   crawl_comment 실행 및 DB 저장
-   ============================'''
-def process_comment() :
-
-    urls_df = fetch_URLs()
-
-    if urls_df.empty :
-        print("[INFO] 크롤링할 데이터 없음")
-        return
-
-    db = DBManager()
-    db.DBOpen(
-        host   = "192.168.0.184",
-        dbname = "third_project",
-        id     = "cho",
-        pw     = "ezen"
-        # host   = "localhost",
-        # dbname = "third_project",
-        # id     = "root",
-        # pw     = "chogh"
-    )
-
-    print(f"[INFO] {len(urls_df)}개 게시글 크롤링...")
-
-    # URL 저장 dict, 결과 저장 list 생성
-    urls        = {}
-    result      = []
-    failed_urls = []
+'''===============
+   웹 드라이버 로드
+   ==============='''
+def driver_worker(url_rows) :
 
     options = webdriver.ChromeOptions()
     options.add_argument("--headless")
     options.add_argument("--window-size=1920x1080")
     options.add_argument("--disable-gpu")
     options.add_argument("--no-sandbox")
-    driver  = webdriver.Chrome(options=options)
+    driver     = webdriver.Chrome(options=options)
 
-    max_tasks = 10
+    results     = []
+    failed_urls = []
 
-    # ThreadPoolExecutor : 최대 10개 스레드 병렬 실행
-    with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor :
+    # 멀티스레드 쓰고싶다 / thread 인자 받아오기
+    # with concurrent.futures.ThreadPoolExecutor(max_workers=threads) as executor :
+    #     futures = [executor.submit(crawl_comment, row.name, row.date, row.link, driver) for row in url_rows]
 
-        futures = []
+    #     for future, row in zip(futures, url_rows) :
+    #         comment = future.result()
 
-        for i, row in enumerate(urls_df.itertuples(index=False)) :
+    #         if comment :
+    #             results.append((comment, row.id))
+    #         else :
+    #             failed_urls.append(row.link)
 
-            if i > 0 and i % max_tasks == 0 :
-                print(f"[INFO] 드라이버 재시작")
-                driver.quit()
-                driver = webdriver.Chrome(options=options)
-
-            future = executor.submit(crawl_comment, row.name, row.date, row.link)
-            futures.append((future, row))
-            urls[future] = row
-
-        for future, row in futures :
-            try :
-                comment = future.result()
-
-                if comment :
-                    result.append((comment, row["id"]))
-                else :
-                    failed_urls.append(row["link"])
-
-            except Exception as e :
-                print(f"[크롤링 오류] {row['link']} :: {e}")
-                failed_urls.append(row["link"])
+    for row in url_rows:
+        comment = crawl_comment(row.name, row.date, row.link, driver)
+        if comment:
+            results.append((comment, row.id))
+        else:
+            failed_urls.append(row.link)
 
     driver.quit()
 
-    if result :
-        print(f"[INFO] {len(result)}개 데이터 저장 중...")
+    return results, failed_urls
 
-        # 크롤링한 데이터 UDATE
-        sql = """
-            UPDATE discussion
-            SET comment = %s
-            WHERE id = %s;
-        """
-        db.cursor.executemany(sql, result)
-        db.con.commit()
+'''============================
+   crawl_comment 실행 및 DB 저장
+   ============================'''
+def process_comment(batch=1000, drivers=1) :
 
-        print(f"[INFO] {len(result)}개 데이터 저장 완료")
+    while True :
 
-    if failed_urls :
-        print(f"[ERROR] {len(failed_urls)}개의 개시글 크롤링 실패")
-        for f_url in failed_urls :
-            print(f"- {f_url}")
+        urls_df = fetch_URLs(limit=batch)
 
-    db.DBClose()
+        if urls_df.empty :
+            print("[INFO] 크롤링할 데이터 없음")
+            return
+
+        print(f"[INFO] {len(urls_df)}개 크롤링 시작 (드라이버 {drivers} x 스레드 1)")
+
+        url_chunks = [urls_df.iloc[i::drivers] for i in range(drivers)]
+
+        all_results        = []
+        all_failed_results = []
+
+        with concurrent.futures.ThreadPoolExecutor(max_workers=drivers) as executor :
+            futures = [executor.submit(driver_worker, chunk.itertuples()) for chunk in url_chunks]
+
+            for future in futures :
+                results, failed_urls = future.result()
+                all_results.extend(results)
+                all_failed_results.extend(failed_urls)
+
+        db = DBManager()
+        db.DBOpen(
+            # host   = "192.168.0.184",
+            # dbname = "third_project",
+            # id     = "cho",
+            # pw     = "ezen"
+            host   = "localhost",
+            dbname = "third_project",
+            id     = "root",
+            pw     = "chogh"
+        )
+
+        if all_results :
+            print(f"[INFO] {len(all_results)}개 데이터 저장 중...")
+
+            # 크롤링한 데이터 UDATE
+            sql = """
+                UPDATE discussion
+                SET comment = %s
+                WHERE id = %s;
+            """
+            db.cursor.executemany(sql, all_results)
+            db.con.commit()
+
+            print(f"[INFO] {len(all_results)}개 데이터 저장 완료")
+
+        if all_failed_results :
+            print(f"[ERROR] {len(all_failed_results)}개의 개시글 크롤링 실패")
+            for f_url in all_failed_results :
+                print(f"- {f_url}")
+
+        db.DBClose()
 
 #===========================================================================================
 
 '''--------실행--------'''
 if __name__ == "__main__" :
-    process_comment()
+    process_comment(batch=1000, drivers=10)

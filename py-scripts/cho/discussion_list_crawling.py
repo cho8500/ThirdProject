@@ -1,6 +1,7 @@
 import sys
 import json
 import pandas as pd
+import concurrent.futures
 
 from DBManager                     import DBManager
 from bs4                           import BeautifulSoup
@@ -10,12 +11,12 @@ from selenium.webdriver.common.by  import By
 from selenium.webdriver.support.ui import WebDriverWait       as WAIT
 from selenium.webdriver.support    import expected_conditions as EC
 
-if len(sys.argv) < 3 :
-    print(f"[ERROR] 인자 부족. 인자 개수 : {len(sys.argv)}")
-    sys.exit(1)
+# if len(sys.argv) < 3 :
+#     print(f"[ERROR] 인자 부족. 인자 개수 : {len(sys.argv)}")
+#     sys.exit(1)
 
-start_date = sys.argv[1]
-end_date   = sys.argv[2]
+# start_date = sys.argv[1]
+# end_date   = sys.argv[2]
 
 ''' ===========================
     Json에서 종목 리스트 불러오기
@@ -37,18 +38,10 @@ def crawl_discussion(name, code, start_date, end_date) :
 
     # Selenium 설정
     options = webdriver.ChromeOptions()
-    options.add_argument("--headless")              # 백그라운드 실행
-    options.add_argument("--window-size=1920x1080") # 해상도 설정
-
-    options.add_argument("--disable-gpu") # GPU 가속 비활성화
-    options.add_argument("--no-sandbox") # 샌드박스 모드해제
-    # options.add_argument("--log-level=3") # 불필요한 로그 제거
-    # options.add_argument("--disable-infobars") # 안내메시지 제거
-    # options.add_argument("--disabled-extensions") # 불필요한 확장프로그램 로드 방지
-    # options.add_argument("--disabled-notifications") # 알림차단
-    # options.add_argument("--disabled-popup-blocking") # 팝업 차단 해제
-    # options.add_argument("--disable-blink-features=AutomationControlled") # selenium 감지방지
-    # options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.51 Safari/537.36") # User-Agent 변경
+    options.add_argument("--headless")               # 백그라운드 실행
+    options.add_argument("--window-size=1920x1080")  # 해상도 설정
+    options.add_argument("--disable-gpu")            # GPU 가속 비활성화
+    options.add_argument("--no-sandbox")             # 샌드박스 모드해제
 
     driver = webdriver.Chrome(options = options)
 
@@ -175,38 +168,54 @@ def save_to_DB (table_name, df) :
 
     db = DBManager()
     db.DBOpen(
-        host   = "192.168.0.184",
-        dbname = "third_project",
-        id     = "cho",
-        pw     = "ezen"
-        # host   = "localhost",
+        # host   = "192.168.0.184",
         # dbname = "third_project",
-        # id     = "root",
-        # pw     = "chogh"
+        # id     = "cho",
+        # pw     = "ezen"
+        host   = "localhost",
+        dbname = "third_project",
+        id     = "root",
+        pw     = "chogh"
     )
     db.insert_df(table_name, df)
     db.DBClose()
+
+''' ===============
+    종목별 작업 수행
+    ==============='''
+def crawl_and_save(name, code, start_date, end_date):
+
+    table_name = "discussion"
+    df         = crawl_discussion(name, code, start_date, end_date)
+
+    if not df.empty :
+        save_to_DB(table_name, df)
+    else:
+        print(f"[{name}] 저장할 데이터가 없습니다.")
 
 # ===========================================================================================
 
 '''--------실행--------'''
 if __name__ == "__main__" :
 
-    list = load_stock_list("./cho/stock_list.json")
+    stock_list = load_stock_list("./cho/stock_list_test.json")
 
     # datetype = "yyyy.mm.dd"
-    # start_date = "2024.11.01"
-    # end_date   = "2025.01.31"
+    start_date = "2025.02.20"
+    end_date   = "2025.02.20"
 
-    for name, code in list.items() :
+    # start_date = sys.argv[1]
+    # end_date   = sys.argv[2]
 
-        print(f"[{name}] {start_date} ~ {end_date} 크롤링...")
+    # 크롤링을 병렬 수행할 스레드 개수 설정
+    max_drivers = 4
 
-        table_name = "discussion"
+    with concurrent.futures.ThreadPoolExecutor(max_workers=max_drivers) as executor :
+        futures = []
+        for name, code in stock_list.items() :
+            future = executor.submit(crawl_and_save, name, code, start_date, end_date)
+            futures.append(future)
 
-        df = crawl_discussion(name, code, start_date, end_date)
-
-        if not df.empty :
-            save_to_DB(table_name, df)
-        else :
-            print("저장할 수 있는 데이터가 없습니다.")
+        # 작업 완료 대기 및 결과 확인
+        for future in concurrent.futures.as_completed(futures) :
+            future.result()

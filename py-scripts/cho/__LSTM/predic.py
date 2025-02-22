@@ -15,6 +15,18 @@ from konlpy.tag import Okt
 from tensorflow.keras.models import load_model
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 
+'''====================================================================================================
+import tensorflow as tf
+
+gpus = tf.config.experimental.list_physical_devices('GPU')
+if gpus:
+    try:
+        for gpu in gpus:
+            tf.config.experimental.set_memory_growth(gpu, True)
+    except RuntimeError as e:
+        print(e)
+===================================================================================================='''
+
 # =====================================================================================================
 # 1. 사용자 정의 파라미터
 
@@ -84,29 +96,9 @@ def sentiment_predict(sentence):
 
 if __name__ == "__main__":
 
-    list = ["삼성전자","SK하이닉스","LG에너지솔루션","삼성바이오로직스","현대차","기아","셀트리온","KB금융","네이버","카카오"]
+    sent = "안녕하세요"
 
-    for item in list:
+    scr  = sentiment_predict(sent)
+    print("[scr]", scr)
 
-        df = pd.read_csv(f"./companies/{item}/1d_{item}_20250205_dic_arealist.csv", encoding='utf-8')
-        df = df["기사내용"]
-        df.replace("\n", "")
-        df.replace("\t", "")
-
-        sum = 0
-
-        for sent in df:
-            scr = sentiment_predict(sent)
-            sum += scr
-
-        avg_list = {'평균': [], '날짜' : []}
-        df = pd.DataFrame(avg_list)
-
-        avg = round(sum / df.size, 2)
-        newrow = {'평균' : avg, '날짜' : 20250205 }
-        df = df.append(newrow, ignore_index=True)
-        df["날짜"] = df["날짜"].astype(int)
-        print(df)
-        df.to_csv(f"./companies/{item}/6m_{item}_avg_result.csv",encoding="utf-8")
-        exit()
 
