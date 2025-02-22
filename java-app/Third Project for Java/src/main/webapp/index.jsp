@@ -31,9 +31,9 @@ System.out.println("[데이터 로드] size: " + stockNames.size());
 					onkeyup="javascript:autoComplete()"
 					onblur="javascript:hideAutoComplete()"
 					autocomplete="off">
+					
 				<button id="search_button" type="submit">
-					<img src="./img/magnifying_glass.png" alt="Search">
-				</button>
+					<img src="./img/magnifying_glass.png" alt="Search"></button>
 			</form>
 			<div id="autocomplete_list"></div>
 		</div>

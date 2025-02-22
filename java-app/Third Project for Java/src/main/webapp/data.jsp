@@ -10,6 +10,17 @@
 String query = request.getParameter("query");
 String day   = request.getParameter("day");
 
-DataDTO dto = new DataDTO();
+if(query == null || day == null) { response.sendRedirect("index.jsp"); }
 
+DataDTO dto = new DataDTO();
+ArrayList<DataVO> stackData = dto.getStackData(query, day);
+
+JsonObject jsonResponse = new JsonObject();
+jsonResponse.add("StackData", new Gson().toJsonTree(stackData));
+
+response.setContentType("application/json");
+response.setCharacterEncoding("UTF-8");
+
+out.print(jsonResponse.toString());
+out.flush();
 %>
