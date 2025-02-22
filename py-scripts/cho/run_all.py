@@ -2,8 +2,8 @@ import subprocess
 from datetime import datetime
 
 # datetype = "yyyy.mm.dd"
-start_date = "2024.11.01"
-end_date   = "2025.01.31"
+start_date = "2024.06.01"
+end_date   = "2024.10.31"
 
 # 실행할 Python 파일
 scripts = [

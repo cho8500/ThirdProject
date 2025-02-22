@@ -7,14 +7,14 @@ def fetch_cont() :
 
     db = DBManager()
     db.DBOpen(
-        # host   = "192.168.0.184",
-        # dbname = "third_project",
-        # id     = "cho",
-        # pw     = "ezen"
-        host   = "localhost",
+        host   = "192.168.0.184",
         dbname = "third_project",
-        id     = "root",
-        pw     = "chogh"
+        id     = "cho",
+        pw     = "ezen"
+        # host   = "localhost",
+        # dbname = "third_project",
+        # id     = "root",
+        # pw     = "chogh"
     )
 
     # 0221 수정사항 : LIMIT 추가해서 한번에 불러와 처리하는 용량 제한 > 성능향상 가능
@@ -69,14 +69,14 @@ def save_to_DB(df) :
 
     db = DBManager()
     db.DBOpen(
-        # host   = "192.168.0.184",
-        # dbname = "third_project",
-        # id     = "cho",
-        # pw     = "ezen"
-        host   = "localhost",
+        host   = "192.168.0.184",
         dbname = "third_project",
-        id     = "root",
-        pw     = "chogh"
+        id     = "cho",
+        pw     = "ezen"
+        # host   = "localhost",
+        # dbname = "third_project",
+        # id     = "root",
+        # pw     = "chogh"
     )
 
     for _, row in df.iterrows():
