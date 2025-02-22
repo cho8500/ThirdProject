@@ -2,12 +2,12 @@ import subprocess
 from datetime import datetime
 
 # datetype = "yyyy.mm.dd"
-start_date = "2024.01.01"
-end_date   = "2025.01.02"
+start_date = "2024.06.01"
+end_date   = "2024.10.31"
 
 # 실행할 Python 파일
 scripts = [
-    # ("./cho/discussion_list_crawling.py", [start_date, end_date]),
+    ("./cho/discussion_list_crawling.py", [start_date, end_date]),
     ("./cho/discussion_post_crawling.py", []),
     ("./cho/discussion_sentiment.py",     [])
 ]

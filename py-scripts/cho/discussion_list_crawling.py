@@ -198,7 +198,7 @@ def crawl_and_save(name, code, start_date, end_date):
 '''--------실행--------'''
 if __name__ == "__main__" :
 
-    stock_list = load_stock_list("./cho/stock_list_test.json")
+    stock_list = load_stock_list("./cho/stock_list.json")
 
     # datetype = "yyyy.mm.dd"
     # start_date = "2025.02.20"

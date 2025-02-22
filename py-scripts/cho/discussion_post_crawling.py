@@ -158,4 +158,4 @@ def process_comment(batch=1000, drivers=1) :
 
 '''--------실행--------'''
 if __name__ == "__main__" :
-    process_comment(batch=100, drivers=8)
+    process_comment(batch=200, drivers=8)
