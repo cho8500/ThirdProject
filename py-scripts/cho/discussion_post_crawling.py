@@ -15,14 +15,14 @@ def fetch_URLs(limit=1000) :
 
     db = DBManager()
     db.DBOpen(
-        # host   = "192.168.0.184",
-        # dbname = "third_project",
-        # id     = "cho",
-        # pw     = "ezen"
-        host   = "localhost",
+        host   = "192.168.0.184",
         dbname = "third_project",
-        id     = "root",
-        pw     = "chogh"
+        id     = "cho",
+        pw     = "ezen"
+        # host   = "localhost",
+        # dbname = "third_project",
+        # id     = "root",
+        # pw     = "chogh"
     )
 
     # 한 종목 끝나면 DB에 UPDATE 하도록 변경 > 지금은 일괄로 넣기 때문에 중간에 끊기면 다 날아감
@@ -123,14 +123,14 @@ def process_comment(batch=1000, drivers=1) :
 
         db = DBManager()
         db.DBOpen(
-            # host   = "192.168.0.184",
-            # dbname = "third_project",
-            # id     = "cho",
-            # pw     = "ezen"
-            host   = "localhost",
+            host   = "192.168.0.184",
             dbname = "third_project",
-            id     = "root",
-            pw     = "chogh"
+            id     = "cho",
+            pw     = "ezen"
+            # host   = "localhost",
+            # dbname = "third_project",
+            # id     = "root",
+            # pw     = "chogh"
         )
 
         if all_results :
