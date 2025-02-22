@@ -119,8 +119,8 @@ def main():
     driver = setup_driver()
     
     # 시작 날짜와 종료 날짜 설정
-    start_date = datetime(2024, 11, 1)
-    end_date = datetime(2025, 1, 31)
+    start_date = datetime(2024, 6, 1)
+    end_date = datetime(2024, 10, 31)
     
     # current_date를 시작 날짜로 초기화
     current_date = start_date
