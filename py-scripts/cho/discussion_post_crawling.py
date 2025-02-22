@@ -82,12 +82,12 @@ def driver_worker(url_rows) :
     #         else :
     #             failed_urls.append(row.link)
 
-    for row in url_rows:
-        comment = crawl_comment(row.name, row.date, row.link, driver)
+    for _, row in url_rows.iterrows():
+        comment = crawl_comment(row['name'], row['date'], row['link'], driver)
         if comment:
-            results.append((comment, row.id))
+            results.append((comment, row['id']))
         else:
-            failed_urls.append(row.link)
+            failed_urls.append(row['link'])
 
     driver.quit()
 
@@ -114,7 +114,7 @@ def process_comment(batch=1000, drivers=1) :
         all_failed_results = []
 
         with concurrent.futures.ThreadPoolExecutor(max_workers=drivers) as executor :
-            futures = [executor.submit(driver_worker, chunk.itertuples()) for chunk in url_chunks]
+            futures = [executor.submit(driver_worker, chunk) for chunk in url_chunks]
 
             for future in futures :
                 results, failed_urls = future.result()
@@ -158,4 +158,4 @@ def process_comment(batch=1000, drivers=1) :
 
 '''--------실행--------'''
 if __name__ == "__main__" :
-    process_comment(batch=1000, drivers=10)
+    process_comment(batch=100, drivers=8)
