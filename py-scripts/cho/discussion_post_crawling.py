@@ -15,14 +15,14 @@ def fetch_URLs(limit=1000) :
 
     db = DBManager()
     db.DBOpen(
-        # host   = "192.168.0.184",
-        # dbname = "third_project",
-        # id     = "cho",
-        # pw     = "ezen"
-        host   = "localhost",
+        host   = "192.168.0.184",
         dbname = "third_project",
-        id     = "root",
-        pw     = "chogh"
+        id     = "cho",
+        pw     = "ezen"
+        # host   = "localhost",
+        # dbname = "third_project",
+        # id     = "root",
+        # pw     = "chogh"
     )
 
     # 한 종목 끝나면 DB에 UPDATE 하도록 변경 > 지금은 일괄로 넣기 때문에 중간에 끊기면 다 날아감
@@ -82,12 +82,12 @@ def driver_worker(url_rows) :
     #         else :
     #             failed_urls.append(row.link)
 
-    for row in url_rows:
-        comment = crawl_comment(row.name, row.date, row.link, driver)
+    for _, row in url_rows.iterrows():
+        comment = crawl_comment(row['name'], row['date'], row['link'], driver)
         if comment:
-            results.append((comment, row.id))
+            results.append((comment, row['id']))
         else:
-            failed_urls.append(row.link)
+            failed_urls.append(row['link'])
 
     driver.quit()
 
@@ -114,7 +114,7 @@ def process_comment(batch=1000, drivers=1) :
         all_failed_results = []
 
         with concurrent.futures.ThreadPoolExecutor(max_workers=drivers) as executor :
-            futures = [executor.submit(driver_worker, chunk.itertuples()) for chunk in url_chunks]
+            futures = [executor.submit(driver_worker, chunk) for chunk in url_chunks]
 
             for future in futures :
                 results, failed_urls = future.result()
@@ -123,14 +123,14 @@ def process_comment(batch=1000, drivers=1) :
 
         db = DBManager()
         db.DBOpen(
-            # host   = "192.168.0.184",
-            # dbname = "third_project",
-            # id     = "cho",
-            # pw     = "ezen"
-            host   = "localhost",
+            host   = "192.168.0.184",
             dbname = "third_project",
-            id     = "root",
-            pw     = "chogh"
+            id     = "cho",
+            pw     = "ezen"
+            # host   = "localhost",
+            # dbname = "third_project",
+            # id     = "root",
+            # pw     = "chogh"
         )
 
         if all_results :
@@ -158,4 +158,4 @@ def process_comment(batch=1000, drivers=1) :
 
 '''--------실행--------'''
 if __name__ == "__main__" :
-    process_comment(batch=1000, drivers=10)
+    process_comment(batch=100, drivers=8)
