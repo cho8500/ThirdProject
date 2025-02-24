@@ -10,6 +10,23 @@
 String query = request.getParameter("query");
 String day   = request.getParameter("day");
 
+if(query == null || day == null)
+{
+	response.sendRedirect("index.jsp");
+	return;
+}
+
 DataDTO dto = new DataDTO();
 
+/* stack 그래프 데이터 */
+ArrayList<DataVO> stackData = dto.getStackData(query, day);
+
+JsonObject jsonResponse = new JsonObject();
+jsonResponse.add("stackData",   new Gson().toJsonTree(stackData));
+
+response.setContentType("application/json");
+response.setCharacterEncoding("UTF-8");
+
+out.print(jsonResponse.toString());
+out.flush();
 %>

@@ -5,6 +5,7 @@ from selenium                      import webdriver
 from selenium.webdriver.common.by  import By
 from selenium.webdriver.support.ui import WebDriverWait as WAIT
 from selenium.webdriver.support    import expected_conditions as EC
+from selenium.common.exceptions    import UnexpectedAlertPresentException, NoAlertPresentException
 
 from DBManager import DBManager
 
@@ -27,7 +28,7 @@ def fetch_URLs(limit=1000) :
 
     # 한 종목 끝나면 DB에 UPDATE 하도록 변경 > 지금은 일괄로 넣기 때문에 중간에 끊기면 다 날아감
     # 0221 수정사항 : LIMIT 추가해서 한번에 불러와 처리하는 용량 제한 > 성능향상 가능
-    sql = f"SELECT id, name, date, link FROM discussion WHERE comment IS NULL LIMIT {limit}"
+    sql = f"SELECT id, name, date, link FROM discussion WHERE comment IS NULL  AND analysis='F' LIMIT {limit};"
     df  = db.fetch_DF(sql)
     db.DBClose()
 
@@ -43,8 +44,20 @@ def crawl_comment(name, date, url, driver) :
     try :
         print(f"[INFO] 크롤링 시작 [{name}] {date} : {url}")
         driver.get(url)
+
+        try :
+            alert = driver.switch_to.alert
+            print(f"[WARNING] 경고문 발생 - {url}")
+
+            alert.dismiss()
+            return "ND"
+
+        except NoAlertPresentException :
+            pass
+
         WAIT(driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, ".view_se")))
         soup        = BeautifulSoup(driver.page_source, "html.parser")
+
         comment_div = soup.select_one(".view_se")
 
         if comment_div :
@@ -69,6 +82,7 @@ def driver_worker(url_rows) :
 
     results     = []
     failed_urls = []
+    nd_results  = []
 
     # 멀티스레드 쓰고싶다 / thread 인자 받아오기
     # with concurrent.futures.ThreadPoolExecutor(max_workers=threads) as executor :
@@ -84,14 +98,18 @@ def driver_worker(url_rows) :
 
     for _, row in url_rows.iterrows():
         comment = crawl_comment(row['name'], row['date'], row['link'], driver)
+
         if comment:
-            results.append((comment, row['id']))
+            if comment == "ND" :
+                nd_results.append((row['id'],))
+            else :
+                results.append((comment, row['id']))
         else:
             failed_urls.append(row['link'])
 
     driver.quit()
 
-    return results, failed_urls
+    return results, failed_urls, nd_results
 
 '''============================
    crawl_comment 실행 및 DB 저장
@@ -112,14 +130,16 @@ def process_comment(batch=1000, drivers=1) :
 
         all_results        = []
         all_failed_results = []
+        all_nd_results     = []
 
         with concurrent.futures.ThreadPoolExecutor(max_workers=drivers) as executor :
             futures = [executor.submit(driver_worker, chunk) for chunk in url_chunks]
 
             for future in futures :
-                results, failed_urls = future.result()
+                results, failed_urls, nd_results = future.result()
                 all_results.extend(results)
                 all_failed_results.extend(failed_urls)
+                all_nd_results.extend(nd_results)
 
         db = DBManager()
         db.DBOpen(
@@ -134,7 +154,7 @@ def process_comment(batch=1000, drivers=1) :
         )
 
         if all_results :
-            print(f"[INFO] {len(all_results)}개 데이터 저장 중...")
+            print(f"[INFO] 정상 : {len(all_results)}개 데이터 저장 중...")
 
             # 크롤링한 데이터 UDATE
             sql = """
@@ -145,7 +165,21 @@ def process_comment(batch=1000, drivers=1) :
             db.cursor.executemany(sql, all_results)
             db.con.commit()
 
-            print(f"[INFO] {len(all_results)}개 데이터 저장 완료")
+            print(f"[INFO] 정상 : {len(all_results)}개 데이터 저장 완료")
+
+        if all_nd_results :
+            print(f"[INFO] ND 데이터 : {len(all_nd_results)}개 데이터 저장 중...")
+
+            # 크롤링한 데이터 UDATE
+            sql = """
+                UPDATE discussion
+                SET analysis = 'ND'
+                WHERE id = %s;
+            """
+            db.cursor.executemany(sql, all_nd_results)
+            db.con.commit()
+
+            print(f"[INFO] ND 데이터 : {len(all_nd_results)}개 데이터 저장 완료")
 
         if all_failed_results :
             print(f"[ERROR] {len(all_failed_results)}개의 개시글 크롤링 실패")
@@ -158,4 +192,4 @@ def process_comment(batch=1000, drivers=1) :
 
 '''--------실행--------'''
 if __name__ == "__main__" :
-    process_comment(batch=200, drivers=8)
+    process_comment(batch=100, drivers=8)

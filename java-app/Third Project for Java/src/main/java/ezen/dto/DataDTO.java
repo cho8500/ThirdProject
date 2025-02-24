@@ -45,12 +45,12 @@ public class DataDTO extends DbManager
 		
 		sql += "SELECT dt.date, ";
 		sql +=        "st.sent_type, ";
-		sql +=        "IFNULL(COUNT(unc.sent_type), 0) AS count ";
+		sql +=        "IFNULL(COUNT(nc.sent_type), 0) AS count ";
 		sql += "FROM date_table dt ";
 		sql += "CROSS JOIN (SELECT 'positive' AS sent_type UNION ALL ";
 		sql +=        "SELECT 'negative' UNION ALL ";
 		sql +=        "SELECT 'neutral') st ";
-		sql += "LEFT JOIN newsComment nc ";
+		sql += "LEFT JOIN newsComments nc ";
 		sql +=        "ON nc.date = dt.date ";
 		sql +=        "AND nc.sent_type = st.sent_type ";
 		sql +=        "AND nc.name = '" + query + "' ";

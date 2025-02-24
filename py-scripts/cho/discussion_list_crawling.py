@@ -1,3 +1,4 @@
+import re
 import sys
 import json
 import pandas as pd
@@ -11,12 +12,12 @@ from selenium.webdriver.common.by  import By
 from selenium.webdriver.support.ui import WebDriverWait       as WAIT
 from selenium.webdriver.support    import expected_conditions as EC
 
-if len(sys.argv) < 3 :
-    print(f"[ERROR] 인자 부족. 인자 개수 : {len(sys.argv)}")
-    sys.exit(1)
+# if len(sys.argv) < 3 :
+#     print(f"[ERROR] 인자 부족. 인자 개수 : {len(sys.argv)}")
+#     sys.exit(1)
 
-start_date = sys.argv[1]
-end_date   = sys.argv[2]
+# start_date = sys.argv[1]
+# end_date   = sys.argv[2]
 
 ''' ===========================
     Json에서 종목 리스트 불러오기
@@ -119,10 +120,25 @@ def crawl_discussion(name, code, start_date, end_date) :
 
                         title = title_tag.get_text(strip=True)
                         date  = cols[0].text.strip()[:10]
-                        link  = f'https://finance.naver.com{cols[1].a["href"][:48] if cols[1].a else ""}'
                         view  = cols[3].text.strip()
                         up    = cols[4].text.strip()
                         down  = cols[5].text.strip()
+
+                        link_tag = title_tag.find("a")
+
+                        if link_tag and "href" in link_tag.attrs :
+
+                            href  = link_tag["href"]
+                            match = re.search(r"(/item/board_read\.naver\?code=\d+&nid=\d{9})", href)
+
+                            if match :
+                                link = f"https://finance.naver.com{match.group(1)}"
+                            else :
+                                link = ""
+                        else :
+                            link = ""
+
+                        # link  = f'https://finance.naver.com{cols[1].a["href"][:48] if cols[1].a else ""}'
 
                         # 수집한 날짜 데이터가 정해진 범위 안에 있는지 확인
                         if start_date <= date <= end_date :
@@ -201,14 +217,14 @@ if __name__ == "__main__" :
     stock_list = load_stock_list("./cho/stock_list.json")
 
     # datetype = "yyyy.mm.dd"
-    # start_date = "2025.02.20"
-    # end_date   = "2025.02.20"
+    start_date = "2025.02.20"
+    end_date   = "2025.02.20"
 
     # start_date = sys.argv[1]
     # end_date   = sys.argv[2]
 
     # 크롤링을 병렬 수행할 스레드 개수 설정
-    max_drivers = 4
+    max_drivers = 1
 
     with concurrent.futures.ThreadPoolExecutor(max_workers=max_drivers) as executor :
         futures = []
