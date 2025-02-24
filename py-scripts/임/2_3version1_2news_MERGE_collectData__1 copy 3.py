@@ -164,7 +164,7 @@ def main():
     
     # 시작 날짜와 종료 날짜 설정
     start_date = datetime(2024, 6, 1)
-    end_date = datetime(2024, 10, 31)
+    end_date = datetime(2024, 6, 2)
     
     # current_date를 시작 날짜로 초기화
     current_date = start_date
@@ -202,7 +202,7 @@ def main():
                 scores, evaluations = analyze_comments(comments)
                 update_analysis_in_db(comments, scores, evaluations)
                 '''
-                print(analyze_comments)
+                print(f"analyze__comments={analyze_comments}")
                 exit()
         current_date += timedelta(days=1)
 
