@@ -18,13 +18,13 @@ public class DbManager
 	static {
 		String className = "com.mysql.cj.jdbc.Driver";
 		
-//		String url       = "jdbc:mysql://192.168.0.184:3306/third_project";
-//		String id        = "cho";
-//		String pw        = "ezen";
+		String url       = "jdbc:mysql://192.168.0.184:3306/third_project";
+		String id        = "cho";
+		String pw        = "ezen";
 		
-		String url       = "jdbc:mysql://localhost:3306/third_project";
-		String id        = "root";
-		String pw        = "chogh";
+//		String url       = "jdbc:mysql://localhost:3306/third_project";
+//		String id        = "root";
+//		String pw        = "chogh";
 		
 		dataSource = new BasicDataSource();
 		dataSource.setDriverClassName(className);

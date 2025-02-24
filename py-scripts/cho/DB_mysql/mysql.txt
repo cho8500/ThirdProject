@@ -65,3 +65,14 @@ SELECT date FROM (
     )
     SELECT date FROM date_series
 ) AS temp;
+
+0224 추가
+
+CREATE TABLE tradingVolume (
+    id INT PRIMARY KEY AUTO_INCREMENT COMMENT 'id',
+    name VARCHAR(50) COMMENT 'stock name',
+    code VARCHAR(10) COMMENT 'stock code',
+    trend VARCHAR(2) COMMENT 'previous days expenses',
+    volume INT COMMENT 'trading volume',
+    FOREIGN KEY(name) REFERENCES stocks(name)
+);
