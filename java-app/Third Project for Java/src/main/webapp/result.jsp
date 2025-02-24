@@ -4,18 +4,6 @@
 <%@ page import="ezen.dao.*"%>
 <%@ page import="java.util.ArrayList" %>
 
-<%
-String query = request.getParameter("query");
-String day   = request.getParameter("day");
-
-/* 검색창 자동완성 불러오기 */
-DataDTO dto = new DataDTO();
-ArrayList<DataVO> stockNames  = dto.getStockNames();
-ArrayList<DataVO> hotNewsData = dto.getHotNews(query, day);
-
-System.out.println("[데이터 로드] size: " + stockNames.size());
-%>
-
 <!DOCTYPE html>
 <html>
 	<head>
@@ -24,14 +12,19 @@ System.out.println("[데이터 로드] size: " + stockNames.size());
 		<!-- 스타일 시트 -->
 		<link rel="stylesheet" href="./css/stack.css">
 		<link rel="stylesheet" href="./css/pie.css">
+		<link href="https://cdn.jsdelivr.net/gh/moonspam/NanumSquareNeo@1.0/nanumsquareneo.css" rel="stylesheet">
 		
-		<!-- 하이차트 스크립트 -->
+		<!-- 하이차트 라이브러리 -->
 		<script src="https://code.highcharts.com/highcharts.js"></script>
 		<script src="https://code.highcharts.com/modules/exporting.js"></script>
 		<script src="https://code.highcharts.com/modules/export-data.js"></script>
 		<script src="https://code.highcharts.com/modules/accessibility.js"></script>
 		
 		<style>
+			body, table {
+				font-family: 'NanumSquareNeoLight', sans-serif;
+			}
+		
 			/* 페이지 상단 */
 			#header_container {
 				display: flex;
@@ -165,7 +158,8 @@ System.out.println("[데이터 로드] size: " + stockNames.size());
 			 }
 			
 			/* 핫뉴스 테이블 컨테이너 */
-			#hotNew_container {
+			#hotNew_container,
+			#board_container {
 				display: flex;
 				flex-direction: column;
 				align-items: center;
@@ -174,7 +168,8 @@ System.out.println("[데이터 로드] size: " + stockNames.size());
 			}
 			
 			/* 핫뉴스 테이블 */
-			#hotNewsTable {
+			#hotNewsTable,
+			#boardTable {
 				border-collapse: collapse;
 				width: 80%;
 				max-width: 900px;
@@ -195,6 +190,45 @@ System.out.println("[데이터 로드] size: " + stockNames.size());
 			#hotNewsTable tr:hover {
 				background-color: #f1f1f1;
 			}
+			
+			/* 보드 데이터 테이블 */
+			#boardTable {
+				width: 100%;
+				max-width: 500px;
+				border-collapse: collapse;
+				text-align: center;
+				margin-top: 20px;
+			}
+			
+			#boardTable th, #boardTable td {
+				padding: 10px;
+				border: 1px solid #ddd;
+			}
+			
+			#boardTable thead {
+				background-color: #f8f9fa;
+				font-weight: bold;
+			}
+			
+			#boardTable tr:nth-child(even) {
+				background-color: #f9f9f9;
+			}
+			
+			#boardTable tr:hover {
+				background-color: #f1f1f1;
+			cursor: pointer;
+			}
+			
+			a {
+				text-decoration: none;
+				color: inherit;
+				display: block;
+				padding: 5px;
+			}
+			
+			a:hover {
+				color: #ff6600;
+			}
 			</style>
 	</head>
 	<body>
@@ -205,24 +239,19 @@ System.out.println("[데이터 로드] size: " + stockNames.size());
 				
 				<!-- 검색창 -->
 				<div id="search_container">
-					<form action="result.jsp" method="GET" onsubmit="return validateQuery()">
-						<input type="hidden" name="day" value="90">
-						<input type="text" id="query" name="query" placeholder="종목의 이름 또는 코드를 입력하세요"
-							onkeyup="javascript:autoComplete()"
-							onblur="javascript:hideAutoComplete()"
-							autocomplete="off">
-						<button id="search_button" type="submit">
-							<img src="./img/magnifying_glass.png" alt="Search">
-						</button>
-					</form>
+					<input type="text" id="query" name="query" placeholder="종목의 이름 또는 코드를 입력하세요"
+						onkeyup="autoComplete()" onblur="hideAutoComplete()" autocomplete="off">
+					<button id="search_button" onclick="validateQuery()">
+						<img src="./img/magnifying_glass.png">
+					</button>
 					<div id="autocomplete_list"></div>
 				</div>
 			</div>
 			
 			<!-- 이름 & 날짜 표시 -->
 			<div id="pageHeader">
-				<span id="companyName"><%= query %></span>
-				<input type="number" id="day" value="<%= day %>" min="7">
+				<span id="companyName"></span>
+				<input type="number" id="day" value="90" min="7">
 				<button id="dayUpdateButton">적용</button>
 				<span class="dateRange"></span>
 			</div>
@@ -239,32 +268,7 @@ System.out.println("[데이터 로드] size: " + stockNames.size());
 		<!-- 핫뉴스 파트 -->
 		<div id="hotNew_container" class="part_container">
 			<h3 class="part_title">핫 뉴스</h3>
-			<span class="dateRange"></span>
-			<table id="hotNewsTable">
-				<tr>
-					<td colspan="3">
-						[ <%= query %> ] <%= day %>일 내에 가장 많은 댓글이 달린 뉴스입니다. -클릭시 해당 뉴스로 이동
-					</td>
-				</tr>
-				<%
-				for(int i = 0; i < hotNewsData.size(); i++)
-				{
-					DataVO vo = hotNewsData.get(i);
-					%>
-					<tr>
-						<th><%= i + 1 %></th>
-						<td><%= vo.getDate() %></td>
-						<td><a href="<%= vo.getLink() %>"><%= vo.getTitle() %></a></td>
-					</tr>
-					<tr>
-						<td></td>
-						<td></td>
-						<td><%= vo.getComment() %> [추천수]<%= vo.getUp() %></td>
-					</tr>
-					<%
-				}
-				 %>
-			</table>
+			<table id="hotNewsTable" class="dataTable"></table>
 		</div>
 		
 		
@@ -276,32 +280,17 @@ System.out.println("[데이터 로드] size: " + stockNames.size());
 			</figure>
 		</div>
 		
+		<!-- 종토방 댓글 파트 -->
+		<div id="board_container" class="part_container">
+			<h3 class="part_title">종토방 인기 게시글</h3>
+			<table id="boardTable" class="dataTable"></table>
+		</div>
+		
 		<!-- 스크립트 -->
 		<script src="./js/index.js"></script>
 		<script src="./js/stack.js"></script>
 		<script src="./js/pie.js"></script>
 		<script>
-		/* 검색창 자동완성 불러오기 */
-		let stockData = [
-			<%
-			for(int i = 0; i < stockNames.size(); i++)
-			{
-				DataVO vo = stockNames.get(i);
-				%>
-				{ name : "<%= vo.getName() %>", code : "<%= vo.getCode() %>"}<%= (i < stockNames.size() - 1) ? "," : "" %>
-				<%
-			}
-			%>
-		];
-		
-		/* 차트 업데이트 */
-		function updateChart() {
-			let query = document.querySelector("#query").value;
-			let day   = document.querySelector("#day").value;
-			
-			updateDateRange(day);
-			load_stackData(query, day);
-		}
 		
 		/* 차트 헤더 날짜 표시 & 업데이트*/
 		function formatDate(date) {
@@ -325,29 +314,75 @@ System.out.println("[데이터 로드] size: " + stockNames.size());
 			startDate.setDate(today.getDate() - (dayVal - 1));
 			
 			let range = formatDate(startDate) + "~" + formatDate(today);
-			
 			document.querySelector(".dateRange").innerText = range;
+		}
+		
+		/* 비동기 데이터 로딩 */
+		function loadData(query, day) {
+			fetch(`data.jsp?query=\${query}&day=\${day}`)
+				.then(response => response.json())
+				.then(data     => {
+					updateHotNews(data.hotNews);
+					updateBoardData(data.boardData);
+					load_stackData(data.stackData);
+					load_pieData(data.pieData);
+				})
+				.catch(error => console.error("DATA LOADING ERROR : ", error));
+		}
+		
+		function updateHotNews(hotNews) {
+			let table = document.querySelector("#hotNewsTable");
+			table.innerHTML = hotNews.map((news, i) => `
+				<tr>
+					<td>\${i + 1}</td>
+					<td>\${news.date}</td>
+					<td><a href="\${news.link}" target="_blank">\${news.title}</a></td>
+				</tr>
+			`).join("");
+		}
+		
+		function updateBoardData(boardData) {
+			let table = document.querySelector("#boardTable");
+			table.innerHTML = boardData.map((post, i) => `
+				<tr>
+					<td>\${i + 1}</td>
+					<td>\${post.date}</td>
+					<td><a href="\${post.link}" target="_blank">\${post.title}</a></td>
+					<td>\${post.view}</td>
+					<td>\${post.up}</td>
+					<td>\${post.down}</td>
+				</tr>
+			`).join("");
+		}
+		
+		function updateCharts(stackData, pieData) {
+			load_stackData(stackData);
+			load_pieData(pieData);
 		}
 		
 		/* window onload */
 		document.addEventListener("DOMContentLoaded", function() {
 			
-			let query = "<%= query %>";
-			let day   = "<%= day %>";
+			let query = new URLSearchParams(window.location.search).get("query") || "카카오";
+			let day   = new URLSearchParams(window.location.search).get("day") || "90";
 			
-			updateDateRange(day);
-			load_stackData(query, day);
+			if (query) {
+				document.querySelector("#query").value = query;
+				loadData(query, day);
+			}
 			
-			document.querySelector("#day").addEventListener("change", function() {
-				
-				let dayInput = this.value;
-				updateDateRange(dayInput);
-				load_stackData(query, dayInput);
+			document.querySelector("#search_button").addEventListener("click", function() {
+				let newQuery = document.querySelector("#query").value;
+				if (newQuery) {
+					window.location.href = `result.jsp?query=\${query}&day=\${day}`;
+				}
 			});
 			
 			document.querySelector("#dayUpdateButton").addEventListener("click", function() {
-				updateChart();
-			})
+				let newDay = document.querySelector("#day").value;
+				updateDateRange(newDay);
+				loadData(document.querySelector("#query").value, newDay);
+			});
 		});
 		</script>
 	</body>
