@@ -2,16 +2,24 @@
  *  index 스크립트
  */
 
-console.log("[stockData] ", stockData);
+let stockData = [];
+
+document.addEventListener("DOMContentLoaded", function () {
+	
+	fetch("data.jsp")
+		.then(response => response.json())
+		.then(data => {
+			stockData = data.stockNames;
+			console.log(stockData)
+		})
+		.catch(error => console.error("[Error] loading stockNames:", error));
+});
 
 /* 자동완성 */
 function autoComplete() {
 
 	let query = document.querySelector("#query").value.trim();
-	let list = document.querySelector("#autocomplete_list");
-
-	console.log("[query] ", query);
-	console.log("[list] ", list);
+	let list  = document.querySelector("#autocomplete_list");
 
 	list.innerHTML = "";
 	list.style.display = "none";
@@ -22,17 +30,12 @@ function autoComplete() {
 		stock.name.includes(query) || stock.code.includes(query)
 	);
 
-	console.log("[filteredStocks] ", filteredStocks);
-
 	if (filteredStocks.length > 0) {
-
 		list.style.display = "block";
 
 		filteredStocks.forEach(stock => {
 			let item = document.createElement("div");
 			item.innerHTML = `${stock.name} (${stock.code})`;
-
-			console.log("[item.innerHTML] ", item.innerHTML);
 
 			item.onclick = function() {
 				document.querySelector("#query").value = stock.name;
@@ -106,22 +109,14 @@ function levenshteinDistance(a, b) {
 
 function validateQuery() {
 
-	let queryInput = document.querySelector("#query").value;
+	let queryInput = document.querySelector("#query").value.trim();
 	let found = stockData.some(stock => stock.name === queryInput);
 
 	if (!found) {
 		let closestMatch = findClosestMatch(queryInput);
 		document.querySelector("#query").value = closestMatch;
 		alert(`입력한 값이 존재하지 않아 "${closestMatch}"로 자동 검색됩니다.`);
-
-		if (userChoice) {
-			document.querySelector("#query").value = closestMatch;
-			return true; // 검색 진행
-		} else {
-			alert("검색어를 다시 입력해 주세요.");
-			document.querySelector("#query").focus();
-			return false; // 검색 실행 막음
-		}
 	}
-	return true;
+
+	window.location.href = `result.jsp?query=${document.querySelector("#query").value}&day=30`;
 }

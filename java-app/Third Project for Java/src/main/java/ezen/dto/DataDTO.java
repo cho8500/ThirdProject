@@ -38,7 +38,7 @@ public class DataDTO extends DbManager
 		return stockNames;
 	}
 	
-	/* stack 그래프 데이터 불러오기 */
+	/* stack 차트 데이터 불러오기 */
 	public ArrayList<DataVO> getStackData(String query, String day)
 	{
 		String sql = "";
@@ -142,5 +142,79 @@ public class DataDTO extends DbManager
 		this.dbDisConnect();
 		
 		return hotNews;
+	}
+	
+	/* pie 차트 데이터 불러오기 */
+	public ArrayList<DataVO> getPieData(String query, String day)
+	{
+		String sql = "";
+		
+		sql += "SELECT s.sent_type, COALESCE(d.count, 0) AS count FROM ";
+		sql += "(SELECT 'positive' AS sent_type UNION ALL ";
+		sql += "SELECT 'negative' UNION ALL ";
+		sql += "SELECT 'neutral') AS s ";
+		sql += "LEFT JOIN (";
+		sql += "SELECT sent_type, COUNT(*) as count FROM discussion ";
+		sql += "WHERE name='" + query + "' ";
+		sql += "AND date BETWEEN CURDATE() - INTERVAL " + day + " DAY AND CURDATE() ";
+		sql += "GROUP BY sent_type ";
+		sql += ") AS d ";
+		sql += "ON s.sent_type = d.sent_type;";
+		
+		System.out.println("[SQL] " + sql);
+		
+		this.dbConnect();
+		this.executeQuery(sql);
+		
+		ArrayList<DataVO> pieData = new ArrayList<DataVO>();
+		
+		while(this.next())
+		{
+			DataVO vo = new DataVO();
+			
+			vo.setSent_type(this.getString("sent_type"));
+			vo.setCount(this.getString("count"));
+			
+			pieData.add(vo);
+		}
+		this.dbDisConnect();
+		
+		return pieData;
+	}
+	
+	public ArrayList<DataVO> getBoardData(String query, String day)
+	{
+		String sql = "";
+		
+		sql += "SELECT title, date, link, view, up, down ";
+		sql += "FROM discussion ";
+		sql += "WHERE name='" + query + "' ";
+		sql += "AND date > DATE_SUB(CURDATE(), INTERVAL " + day + " DAY) ";
+		sql += "ORDER BY up DESC ";
+		sql += "LIMIT 5;";
+		
+		System.out.println("[SQL] " + sql);
+		
+		this.dbConnect();
+		this.executeQuery(sql);
+		
+		ArrayList<DataVO> boardData = new ArrayList<DataVO>();
+		
+		while(this.next())
+		{
+			DataVO vo = new DataVO();
+			
+			vo.setTitle(this.getString("title"));
+			vo.setDate(this.getString("date"));
+			vo.setLink(this.getString("link"));
+			vo.setView(this.getString("view"));
+			vo.setUp(this.getString("up"));
+			vo.setDown(this.getString("down"));
+			
+			boardData.add(vo);
+		}
+		this.dbDisConnect();
+		
+		return boardData;
 	}
 }

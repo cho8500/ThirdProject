@@ -6,41 +6,7 @@
 // - https://www.statista.com/statistics/383679/fa-cup-wins-by-team/
 // - https://www.uefa.com/uefachampionsleague/history/winners/
 
-function load_stackData(query, day) {
-	
-	fetch(`data.jsp?query=${query}&day=${day}`)
-		.then(response => response.json())
-		.then(data => {
-			const formatted_stackData = formatStackData(data.stackData);
-			draw_stackChart(formatted_stackData);
-		});
-}
-
-function formatStackData(rawData) {
-	
-	if (!rawData || rawData.length === 0) {
-		console.log("No data received for stack chart.");
-		return { categories: [], positive: [0], neutral: [0], negative: [0] };
-	}
-	
-	let categories = [];
-	let positive   = [];
-	let neutral    = [];
-	let negative   = [];
-	
-	rawData.forEach(item => {
-		
-		if (!categories.includes(item.date)) categories.push(item.date);
-		
-		if      (item.sent_type === 'positive') positive.push(Number(item.count));
-		else if (item.sent_type === 'negative') negative.push(Number(item.count));
-		else if (item.sent_type === 'neutral')  neutral.push(Number(item.count));
-	});
-	return { categories, positive, neutral, negative };
-}
-
 function draw_stackChart(data) {
-	
 	Highcharts.chart('stackChart', {
 		chart: {
 			type: 'column',
@@ -101,4 +67,28 @@ function draw_stackChart(data) {
 			color: '#0000ff'
 		}]
 	})
+}
+
+function load_stackData(stackData) {
+	
+	if(!stackData || stackData.length === 0) {
+		console.log("No data received for stack chart");
+		return { categories: [], positive: [0], neutral: [0], negative: [0] };
+	}
+	
+	let categories = [];
+	let positive   = [];
+	let neutral    = [];
+	let negative   = [];
+	
+	stackData.forEach(item => {
+		
+		if (!categories.includes(item.date)) categories.push(item.date);
+		
+		if      (item.sent_type === 'positive') positive.push(Number(item.count));
+		else if (item.sent_type === 'negative') negative.push(Number(item.count));
+		else if (item.sent_type === 'neutral')  neutral.push(Number(item.count));
+	});
+	
+	draw_stackChart({ categories, positive, neutral, negative });
 }
