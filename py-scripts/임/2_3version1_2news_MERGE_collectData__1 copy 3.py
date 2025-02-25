@@ -95,10 +95,13 @@ def fetch_news_links(driver, stock_name, stock_code, current_date_dash):
                 link = subject.get("href")
                 if link:
                     urllist.append(link)
-        except Exception:
-            print(f"{stock_name} & page={search_url} 기사 없음 ")
+        except Exception as e:
+            print(f"{stock_name} & page={search_url} 기사 없음 : {str(e)}")
     
-    print(f"[DEBUG] {stock_name} 링크: {urllist}")
+    #print(f"[DEBUG] {stock_name} 링크: {urllist}")
+    if not urllist : 
+        print(f"[INFO] {stock_name} - {current_date_dash} 기사 링크가 없습니다")
+    
     return urllist
 
 

@@ -70,6 +70,7 @@ SELECT date FROM (
 
 CREATE TABLE tradingVolume (
     id INT PRIMARY KEY AUTO_INCREMENT COMMENT 'id',
+    date Date, 
     name VARCHAR(50) COMMENT 'stock name',
     code VARCHAR(10) COMMENT 'stock code',
     trend VARCHAR(2) COMMENT 'previous days expenses',

@@ -132,7 +132,19 @@ for month in range(10, 13):
 
             print(f"urllist{urllist}")
             print(f"url_int{len(urllist)}")
+            
+            for article_url in urllist:
+                driver.get(article_url)
+                time.sleep(3)
+                soup = BeautifulSoup(driver.page_source, "html.parser")
+                comments = [c.text.strip() for c in soup.select(".u_cbox_contents")]
+                recomms = [int(r.text.strip()) for r in soup.select("em.u_cbox_cnt_recomm")]
+                unrecomms = [int(ur.text.strip()) for ur in soup.select("em.u_cbox_cnt_unrecomm")]
+                title = soup.select_one(".media_end_head_headline").text.strip() if soup.select_one(".media_end_head_headline") else ""
+                
             exit()
+            
+            
             # 추출할 링크 선택
             '''
             print("exit를 실행합니다")
