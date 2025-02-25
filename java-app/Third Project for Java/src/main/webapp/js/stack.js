@@ -81,7 +81,7 @@ function load_stackData(stackData) {
 	let neutral    = [];
 	let negative   = [];
 	
-	rawData.forEach(item => {
+	stackData.forEach(item => {
 		
 		if (!categories.includes(item.date)) categories.push(item.date);
 		

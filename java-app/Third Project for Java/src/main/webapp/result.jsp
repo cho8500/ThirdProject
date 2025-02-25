@@ -240,9 +240,12 @@
 				<!-- 검색창 -->
 				<div id="search_container">
 					<input type="text" id="query" name="query" placeholder="종목의 이름 또는 코드를 입력하세요"
-						onkeyup="autoComplete()" onblur="hideAutoComplete()" autocomplete="off">
-					<button id="search_button" onclick="validateQuery()">
-						<img src="./img/magnifying_glass.png">
+						onkeyup="autoComplete()"
+						onfocus="autoComplete()"
+						onblur="hideAutoComplete()"
+						autocomplete="off">
+					<button id="search_button">
+						<img src="./img/magnifying_glass.png" alt="Search">
 					</button>
 					<div id="autocomplete_list"></div>
 				</div>
@@ -290,100 +293,6 @@
 		<script src="./js/index.js"></script>
 		<script src="./js/stack.js"></script>
 		<script src="./js/pie.js"></script>
-		<script>
-		
-		/* 차트 헤더 날짜 표시 & 업데이트*/
-		function formatDate(date) {
-			
-			let year  = date.getFullYear();
-			let month = ("0" + (date.getMonth() + 1)).slice(-2);
-			let day   = ("0" + (date.getDate())).slice(-2);
-			
-			let formattedDate = year + "." + month + "." + day
-			
-			return formattedDate;
-		}
-		
-		function updateDateRange(dayVal) {
-			
-			dayVal = parseInt(dayVal);
-			
-			let today     = new Date();
-			let startDate = new Date();
-			
-			startDate.setDate(today.getDate() - (dayVal - 1));
-			
-			let range = formatDate(startDate) + "~" + formatDate(today);
-			document.querySelector(".dateRange").innerText = range;
-		}
-		
-		/* 비동기 데이터 로딩 */
-		function loadData(query, day) {
-			fetch(`data.jsp?query=\${query}&day=\${day}`)
-				.then(response => response.json())
-				.then(data     => {
-					updateHotNews(data.hotNews);
-					updateBoardData(data.boardData);
-					load_stackData(data.stackData);
-					load_pieData(data.pieData);
-				})
-				.catch(error => console.error("DATA LOADING ERROR : ", error));
-		}
-		
-		function updateHotNews(hotNews) {
-			let table = document.querySelector("#hotNewsTable");
-			table.innerHTML = hotNews.map((news, i) => `
-				<tr>
-					<td>\${i + 1}</td>
-					<td>\${news.date}</td>
-					<td><a href="\${news.link}" target="_blank">\${news.title}</a></td>
-				</tr>
-			`).join("");
-		}
-		
-		function updateBoardData(boardData) {
-			let table = document.querySelector("#boardTable");
-			table.innerHTML = boardData.map((post, i) => `
-				<tr>
-					<td>\${i + 1}</td>
-					<td>\${post.date}</td>
-					<td><a href="\${post.link}" target="_blank">\${post.title}</a></td>
-					<td>\${post.view}</td>
-					<td>\${post.up}</td>
-					<td>\${post.down}</td>
-				</tr>
-			`).join("");
-		}
-		
-		function updateCharts(stackData, pieData) {
-			load_stackData(stackData);
-			load_pieData(pieData);
-		}
-		
-		/* window onload */
-		document.addEventListener("DOMContentLoaded", function() {
-			
-			let query = new URLSearchParams(window.location.search).get("query") || "카카오";
-			let day   = new URLSearchParams(window.location.search).get("day") || "90";
-			
-			if (query) {
-				document.querySelector("#query").value = query;
-				loadData(query, day);
-			}
-			
-			document.querySelector("#search_button").addEventListener("click", function() {
-				let newQuery = document.querySelector("#query").value;
-				if (newQuery) {
-					window.location.href = `result.jsp?query=\${query}&day=\${day}`;
-				}
-			});
-			
-			document.querySelector("#dayUpdateButton").addEventListener("click", function() {
-				let newDay = document.querySelector("#day").value;
-				updateDateRange(newDay);
-				loadData(document.querySelector("#query").value, newDay);
-			});
-		});
-		</script>
+		<script src="./js/result.js"></script>
 	</body>
 </html>

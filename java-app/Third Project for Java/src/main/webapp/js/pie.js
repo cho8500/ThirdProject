@@ -44,9 +44,9 @@ function draw_pieChart(data) {
 		series: [{
 			name: 'Sentiment',
 			data: [
-				{ name: 'Positive', y: data.positive.reduce((a, b) => a + b, 0), color: '#ff0000' },
-				{ name: 'Neutral',  y: data.neutral.reduce((a, b) => a + b, 0), color: '#808080' },
-				{ name: 'Negative', y: data.negative.reduce((a, b) => a + b, 0), color: '#0000ff' }
+				{ name: 'Positive', y: data.positive, color: '#ff0000' },
+				{ name: 'Neutral',  y: data.neutral,  color: '#808080' },
+				{ name: 'Negative', y: data.negative, color: '#0000ff' }
 			]
 		}]
 	});
@@ -56,19 +56,19 @@ function load_pieData(pieData) {
 
 	if (!pieData || pieData.length === 0) {
 		console.log("No data received for pie chart.");
-		return { categories: [], positive: [0], neutral: [0], negative: [0] };
+		draw_pieChart({ positive: 0, neutral: 0, negative: 0 });
+		return;
 	}
 
 	let positive = 0;
 	let neutral  = 0;
 	let negative = 0;
 
-	rawData.forEach(item => {
-
+	pieData.forEach(item => {
 		if      (item.sent_type === 'positive') positive += Number(item.count);
 		else if (item.sent_type === 'negative') negative += Number(item.count);
 		else if (item.sent_type === 'neutral')  neutral  += Number(item.count);
 	});
 	
-	draw_pieChart({ categories, positive, neutral, negative });
+	draw_pieChart({ positive, neutral, negative });
 }

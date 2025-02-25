@@ -10,15 +10,6 @@
 String query = request.getParameter("query");
 String day   = request.getParameter("day");
 
-if(query == null || day == null)
-{
-	response.setContentType("application/json");
-	response.setCharacterEncoding("UTF-8");
-	out.print("{\"error\": \"Invalid request\"}");
-	out.flush();
-	return;
-}
-
 DataDTO dto = new DataDTO();
 
 /* 데이터 호출 */

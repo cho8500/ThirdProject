@@ -5,10 +5,12 @@
 let stockData = [];
 
 document.addEventListener("DOMContentLoaded", function () {
+	
 	fetch("data.jsp")
 		.then(response => response.json())
 		.then(data => {
 			stockData = data.stockNames;
+			console.log(stockData)
 		})
 		.catch(error => console.error("[Error] loading stockNames:", error));
 });
@@ -116,5 +118,5 @@ function validateQuery() {
 		alert(`입력한 값이 존재하지 않아 "${closestMatch}"로 자동 검색됩니다.`);
 	}
 
-	window.location.href = `result.jsp?query=\${document.querySelector("#query").value}&day=90`;
+	window.location.href = `result.jsp?query=${document.querySelector("#query").value}&day=30`;
 }
