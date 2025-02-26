@@ -34,6 +34,7 @@
 		</div>
 		
 		<!-- 페이지 스크립트 -->
+		<script src="./js/searchbar.js"></script>
 		<script src="./js/index.js"></script>
 	</body>
 </html>

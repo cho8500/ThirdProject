@@ -1,17 +1,14 @@
 package ezen.dao;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import org.apache.commons.dbcp2.BasicDataSource;
 
 // 데이터에 접근할 수 있는 메소드를 담은 DAO 클래스
 public class DbManager
 {
-	Connection conn = null;
-	Statement  stmt = null;
-	ResultSet  rs   = null;
+	Connection conn         = null;
+	PreparedStatement pstmt = null;
+	ResultSet  rs           = null;
 	
 	private static BasicDataSource dataSource;
 	
@@ -27,11 +24,11 @@ public class DbManager
 //		String pw        = "chogh";
 		
 		dataSource = new BasicDataSource();
+		
 		dataSource.setDriverClassName(className);
 		dataSource.setUrl(url);
 		dataSource.setUsername(id);
 		dataSource.setPassword(pw);
-		
 		// Pool 설정
 		dataSource.setInitialSize(5);	// 초기 연결 수
 		dataSource.setMaxTotal(20);		// 최대 연결 수
@@ -52,22 +49,36 @@ public class DbManager
 	}
 	
 //	Execute queries; create, update, delete
-	public void execute(String sql)
-	{
-		try { stmt = conn.createStatement(); } 
-		catch (SQLException e) { e.printStackTrace(); }
-		
-		try { stmt.execute(sql); }
-		catch (SQLException e) { e.printStackTrace(); }
-	}
-	
-//	Execute query; select
-	public void executeQuery(String sql)
+	public void execute(String sql, Object... params)
 	{
 		try
 		{
-			stmt = conn.createStatement(); 
-			rs   = stmt.executeQuery(sql);
+			pstmt = conn.prepareStatement(sql);
+			
+			for(int i = 0; i < params.length; i++) {
+				pstmt.setObject(i + 1, params[i]);
+			}
+			System.out.println("[SQL] " + pstmt.toString());
+			pstmt.executeUpdate();
+		}
+		catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+	
+//	Execute query; select
+	public void executeQuery(String sql, Object... params)
+	{
+		try
+		{
+			pstmt = conn.prepareStatement(sql);
+			
+			for(int i = 0; i < params.length; i++)
+			{
+				pstmt.setObject(i + 1, params[i]);
+			}
+			System.out.println("[SQL] " + pstmt.toString());
+			rs   = pstmt.executeQuery();
 		}
 		catch (SQLException e)
 		{
@@ -111,7 +122,7 @@ public class DbManager
 	{
 		try {
 			if(rs   != null) rs.close();
-			if(stmt != null) stmt.close();
+			if(pstmt != null) pstmt.close();
 			if(conn != null) conn.close();
 		} catch (SQLException e) { e.printStackTrace(); }
 	}

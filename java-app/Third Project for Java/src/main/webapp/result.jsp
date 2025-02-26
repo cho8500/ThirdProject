@@ -290,9 +290,9 @@
 		</div>
 		
 		<!-- 스크립트 -->
-		<script src="./js/index.js"></script>
 		<script src="./js/stack.js"></script>
 		<script src="./js/pie.js"></script>
+		<script src="./js/searchbar.js"></script>
 		<script src="./js/result.js"></script>
 	</body>
 </html>

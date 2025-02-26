@@ -17,7 +17,7 @@ public class DataDTO extends DbManager
 	{
 		String sql = "SELECT * FROM stocks;";
 		
-		System.out.println("[SQL] " + sql);
+		System.out.println("[SearchBar SQL] " + sql);
 		
 		this.dbConnect();
 		this.executeQuery(sql);
@@ -45,28 +45,26 @@ public class DataDTO extends DbManager
 		
 		sql += "SELECT dt.date, ";
 		sql +=        "st.sent_type, ";
-		sql +=        "IFNULL(COUNT(nc.sent_type), 0) AS count ";
+		sql +=        "COALESCE(COUNT(nc.sent_type), 0) AS count ";
 		sql += "FROM date_table dt ";
-		sql += "CROSS JOIN (SELECT 'positive' AS sent_type UNION ALL ";
+		sql += "CROSS JOIN (";
+		sql +=        "SELECT 'positive' AS sent_type UNION ALL ";
 		sql +=        "SELECT 'negative' UNION ALL ";
-		sql +=        "SELECT 'neutral') st ";
+		sql +=        "SELECT 'neutral'";
+		sql += ") st ";
 		sql += "LEFT JOIN newsComments nc ";
 		sql +=        "ON nc.date = dt.date ";
 		sql +=        "AND nc.sent_type = st.sent_type ";
-		sql +=        "AND nc.name = '" + query + "' ";
-		sql += "WHERE dt.date BETWEEN CURDATE() - INTERVAL " + day + " DAY AND CURDATE() ";
+		sql +=        "AND nc.name = ? ";
+		sql += "WHERE dt.date BETWEEN CURDATE() - INTERVAL ? DAY AND CURDATE() ";
 		sql += "GROUP BY dt.date, st.sent_type ";
 		sql += "ORDER BY dt.date ASC, ";
-		sql +=        "CASE st.sent_type ";
-		sql +=             "WHEN 'positive' THEN 1 ";
-		sql +=             "WHEN 'neutral' THEN 2 ";
-		sql +=             "WHEN 'negative' THEN 3 ";
-		sql +=        "END ASC;";
+		sql +=        "FIELD(st.sent_type, 'positive', 'neutral', 'negative');";
 		
-		System.out.println("[SQL] " + sql);
+		System.out.println("[StackChart (" + query + ", " + day + ")]");
 		
 		this.dbConnect();
-		this.executeQuery(sql);
+		this.executeQuery(sql, query, day);
 		
 		ArrayList<DataVO> stackData = new ArrayList<DataVO>();
 		
@@ -96,8 +94,8 @@ public class DataDTO extends DbManager
 		sql +=        "link, ";
 		sql +=        "COUNT(*) AS comment_count ";
 		sql += "FROM newsComments ";
-		sql += "WHERE date > DATE_SUB(CURDATE(), INTERVAL " + day + " DAY) ";
-		sql += "AND name = '" + query + "' ";
+		sql += "WHERE name = ? ";
+		sql += "AND date > DATE_SUB(CURDATE(), INTERVAL ? DAY) ";
 		sql += "GROUP BY title, date, link ";
 		sql += "ORDER BY comment_count DESC ";
 		sql += "LIMIT 5) ";
@@ -111,18 +109,15 @@ public class DataDTO extends DbManager
 		sql += "FROM TopArticles ta ";
 		sql += "JOIN newsComments c ";
 		sql += "ON ta.title = c.title AND ta.date = c.date ";
-		sql += "WHERE c.id = (";
-		sql +=        "SELECT id ";
-		sql +=        "FROM newsComments ";
-		sql +=        "WHERE title = ta.title AND date = ta.date ";
-		sql +=        "ORDER BY up DESC, id ASC ";
-		sql +=        "LIMIT 1) ";
+		sql += "LEFT JOIN newsComments c2 ";
+		sql += "ON c.title = c2.title AND c.date = c2.date AND c.up < c2.up ";
+		sql += "WHERE c2.id IS NULL ";
 		sql += "ORDER BY ta.comment_count DESC, ta.date DESC;";
 		
-		System.out.println("[SQL] " + sql);
+		System.out.println("[HotNews    (" + query + ", " + day + ")]");
 		
 		this.dbConnect();
-		this.executeQuery(sql);
+		this.executeQuery(sql, query, day);
 		
 		ArrayList<DataVO> hotNews = new ArrayList<DataVO>();
 		
@@ -149,22 +144,28 @@ public class DataDTO extends DbManager
 	{
 		String sql = "";
 		
-		sql += "SELECT s.sent_type, COALESCE(d.count, 0) AS count FROM ";
-		sql += "(SELECT 'positive' AS sent_type UNION ALL ";
-		sql += "SELECT 'negative' UNION ALL ";
-		sql += "SELECT 'neutral') AS s ";
+		sql += "SELECT ";
+		sql +=     "s.sent_type, ";
+		sql +=     "COALESCE(d.count, 0) AS count ";
+		sql += "FROM (";
+		sql +=     "SELECT 'positive' AS sent_type UNION ALL ";
+		sql +=     "SELECT 'negative' UNION ALL ";
+		sql +=     "SELECT 'neutral'";
+		sql += ") AS s ";
 		sql += "LEFT JOIN (";
-		sql += "SELECT sent_type, COUNT(*) as count FROM discussion ";
-		sql += "WHERE name='" + query + "' ";
-		sql += "AND date BETWEEN CURDATE() - INTERVAL " + day + " DAY AND CURDATE() ";
-		sql += "GROUP BY sent_type ";
+		sql +=     "SELECT sent_type, ";
+		sql +=     "COUNT(*) as count ";
+		sql +=     "FROM discussion ";
+		sql +=     "WHERE name=? ";
+		sql +=     "AND date BETWEEN CURDATE() - INTERVAL ? DAY AND CURDATE() ";
+		sql +=     "GROUP BY sent_type ";
 		sql += ") AS d ";
 		sql += "ON s.sent_type = d.sent_type;";
 		
-		System.out.println("[SQL] " + sql);
+		System.out.println("[PieChart   (" + query + ", " + day + ")]");
 		
 		this.dbConnect();
-		this.executeQuery(sql);
+		this.executeQuery(sql, query, day);
 		
 		ArrayList<DataVO> pieData = new ArrayList<DataVO>();
 		
@@ -186,17 +187,23 @@ public class DataDTO extends DbManager
 	{
 		String sql = "";
 		
-		sql += "SELECT title, date, link, view, up, down ";
+		sql += "SELECT ";
+		sql +=     "title, ";
+		sql +=     "date, ";
+		sql +=     "link, ";
+		sql +=     "view, ";
+		sql +=     "up, ";
+		sql +=     "down ";
 		sql += "FROM discussion ";
-		sql += "WHERE name='" + query + "' ";
-		sql += "AND date > DATE_SUB(CURDATE(), INTERVAL " + day + " DAY) ";
+		sql += "WHERE name=? ";
+		sql += "AND date > DATE_SUB(CURDATE(), INTERVAL ? DAY) ";
 		sql += "ORDER BY up DESC ";
 		sql += "LIMIT 5;";
 		
-		System.out.println("[SQL] " + sql);
+		System.out.println("[BoardData  (" + query + ", " + day + ")]");
 		
 		this.dbConnect();
-		this.executeQuery(sql);
+		this.executeQuery(sql, query, day);
 		
 		ArrayList<DataVO> boardData = new ArrayList<DataVO>();
 		

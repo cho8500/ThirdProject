@@ -34,6 +34,7 @@ function loadData(query, day) {
 	fetch(`data.jsp?query=${query}&day=${day}`)
 		.then(response => response.json())
 		.then(data => {
+			stockData = data.stockNames;
 			load_stackData(data.stackData);
 			updateHotNews(data.hotNewsData);
 			load_pieData(data.pieData);
