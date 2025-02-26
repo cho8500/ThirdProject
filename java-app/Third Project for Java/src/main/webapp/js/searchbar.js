@@ -2,10 +2,22 @@
  *  검색창 스크립트
  */
 
+document.addEventListener("DOMContentLoaded", function() {
+	
+	let searchInput = document.querySelector("#query");
+
+	searchInput.addEventListener("keydown", function(event) {
+		if (event.key === "Enter") {
+			event.preventDefault();
+			validateQuery();
+		}
+	});
+});
+
 /* 자동완성 */
 function autoComplete() {
 
-	let query = document.querySelector("#query").value.trim();
+	let query = document.querySelector("#query").value.toUpperCase().trim();
 	let list  = document.querySelector("#autocomplete_list");
 
 	list.innerHTML = "";
@@ -44,7 +56,7 @@ function hideAutoComplete() {
 /* 검색어 유사도 검사 */
 function findClosestMatch(inputValue) {
 
-	inputValue = inputValue.trim(); // 앞뒤 공백 제거
+	inputValue = inputValue.toUpperCase().trim(); // 앞뒤 공백 제거
 
 	let bestMatch = "";
 	let candidates = [];

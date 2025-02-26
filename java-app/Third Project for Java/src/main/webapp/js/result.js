@@ -24,13 +24,22 @@ document.addEventListener("DOMContentLoaded", function() {
 		updateDateRange(newDay);
 		loadData(document.querySelector("#query").value, newDay);
 	});
+	
+	document.querySelector("#day").addEventListener("keydown", function(event) {
+		if (event.key === "Enter") {
+			let newDay = document.querySelector("#day").value;
+			updateDateRange(newDay);
+			loadData(document.querySelector("#query").value, newDay);
+		}
+	});
 });
 
 /* 비동기 데이터 로딩 */
 function loadData(query, day) {
-	
-	console.log("[query] " + query + " [day] " + day);
-	
+
+	let code = "";
+	let companyName = "";
+		
 	fetch(`data.jsp?query=${query}&day=${day}`)
 		.then(response => response.json())
 		.then(data => {
@@ -39,8 +48,22 @@ function loadData(query, day) {
 			updateHotNews(data.hotNewsData);
 			load_pieData(data.pieData);
 			updateBoardData(data.boardData);
+			
+			stockData.forEach(stock => {
+				
+				if (stock.name == query) {
+					code = stock.code;
+					companyName = query; 
+					return;
+				} 
+			});
+			document.querySelector("#companyName").innerHTML = `
+				${query} <span style="color: #AAA;">(${code})</span>
+			`;
 		})
 		.catch(error => console.error("DATA LOADING ERROR : ", error));
+	
+	console.log("[query] " + query + " [day] " + day);
 }
 
 function updateHotNews(hotNews) {
@@ -63,18 +86,6 @@ function updateHotNews(hotNews) {
 			<td></td>
 			<td>${news.comment} [추천수 ${news.up}]</td>
 		`;
-		
-		/*row.innerHTML = `
-				<td>${i + 1}</td>
-				<td>${news.date}</td>
-				<td><a href="${news.link}" target="_blank">${news.title}</a></td>
-			</tr>
-			<tr>
-				<td></td>
-				<td></td>
-				<td>${news.comment} [추천수 ${news.up}]</td>
-		`;*/
-		
 		table.appendChild(title_row);
 		table.appendChild(comment_row);
 	});
@@ -126,6 +137,6 @@ function updateDateRange(dayVal) {
 
 	startDate.setDate(today.getDate() - (dayVal - 1));
 
-	let range = formatDate(startDate) + "~" + formatDate(today);
-	document.querySelector(".dateRange").innerText = range;
+	let range = formatDate(startDate) + " ~ " + formatDate(today);
+	document.querySelector("#dateRange").innerText = range;
 }

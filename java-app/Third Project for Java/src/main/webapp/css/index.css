@@ -1,7 +1,7 @@
 @charset "UTF-8";
 
 body {
-	font-family: 'NanumSquareNeoLight', sans-serif;
+	font-family: "Noto Sans KR", serif;
 	text-align: center;
 }
 
@@ -26,6 +26,7 @@ body {
 }
 
 #query {
+	font-family: "Noto Sans KR", serif;
 	width: 300px;
 	height: 30px;
 	padding: 5px 40px 5px 15px;
