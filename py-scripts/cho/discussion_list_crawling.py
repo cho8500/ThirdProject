@@ -224,7 +224,7 @@ if __name__ == "__main__" :
     # end_date   = sys.argv[2]
 
     # 크롤링을 병렬 수행할 스레드 개수 설정
-    max_drivers = 1
+    max_drivers = 4
 
     with concurrent.futures.ThreadPoolExecutor(max_workers=max_drivers) as executor :
         futures = []
