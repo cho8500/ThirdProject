@@ -84,7 +84,7 @@ def driver_worker(url_rows) :
     failed_urls = []
     nd_results  = []
 
-    # 멀티스레드 쓰고싶다 / thread 인자 받아오기
+    # 멀티스레드 사용 희망 / thread 인자 받아오기
     # with concurrent.futures.ThreadPoolExecutor(max_workers=threads) as executor :
     #     futures = [executor.submit(crawl_comment, row.name, row.date, row.link, driver) for row in url_rows]
 

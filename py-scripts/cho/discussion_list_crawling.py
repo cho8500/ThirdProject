@@ -12,12 +12,12 @@ from selenium.webdriver.common.by  import By
 from selenium.webdriver.support.ui import WebDriverWait       as WAIT
 from selenium.webdriver.support    import expected_conditions as EC
 
-# if len(sys.argv) < 3 :
-#     print(f"[ERROR] 인자 부족. 인자 개수 : {len(sys.argv)}")
-#     sys.exit(1)
+if len(sys.argv) < 3 :
+    print(f"[ERROR] 인자 부족. 인자 개수 : {len(sys.argv)}")
+    sys.exit(1)
 
-# start_date = sys.argv[1]
-# end_date   = sys.argv[2]
+start_date = sys.argv[1]
+end_date   = sys.argv[2]
 
 ''' ===========================
     Json에서 종목 리스트 불러오기
@@ -217,8 +217,8 @@ if __name__ == "__main__" :
     stock_list = load_stock_list("./cho/stock_list.json")
 
     # datetype = "yyyy.mm.dd"
-    start_date = "2025.02.20"
-    end_date   = "2025.02.20"
+    # start_date = "2025.02.20"
+    # end_date   = "2025.02.20"
 
     # start_date = sys.argv[1]
     # end_date   = sys.argv[2]
