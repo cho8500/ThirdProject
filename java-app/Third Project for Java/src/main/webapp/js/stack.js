@@ -12,17 +12,18 @@ function draw_stackChart(data) {
 			type: 'column',
 			width: 1200,
 			spacingRight: 50,
-			spacingLeft: 50
+			spacingLeft: 50,
+			style: { fontFamily: '"Noto Sans KR", serif' }
 		},
 		title: {
-			text: '',
-			align: 'left'
+			text: null
 		},
 		xAxis: {
 			categories: data.categories,
 			labels: {
 				style: {
-					fontSize: '14px'
+					fontSize: '14px',
+					fontFamily: '"Noto Sans KR", serif'
 				}
 			}
 		},
@@ -48,7 +49,7 @@ function draw_stackChart(data) {
 			column: {
 				stacking: 'normal',
 				dataLabels: { enabled: false },
-				pointWidth: 3,
+				pointWidth: 4,
 				pointPadding: 0.1,
 				groupPadding: 0.2
 			}
@@ -56,15 +57,18 @@ function draw_stackChart(data) {
 		series: [{
 			name: 'positive',
 			data: data.positive,
-			color: '#ff0000'
+			color: '#f05650',
+			fontFamily: '"Noto Sans KR", serif'
 		}, {
 			name: 'neutral',
 			data: data.neutral,
-			color: '#808080'
+			color: '#D0D0D0',
+			fontFamily: '"Noto Sans KR", serif'
 		}, {
 			name: 'negative',
 			data: data.negative,
-			color: '#0000ff'
+			color: '#4AA8D8',
+			fontFamily: '"Noto Sans KR", serif'
 		}]
 	})
 }

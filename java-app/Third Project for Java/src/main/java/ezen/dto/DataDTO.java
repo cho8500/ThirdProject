@@ -83,6 +83,49 @@ public class DataDTO extends DbManager
 		return stackData;
 	}
 	
+	/* 거래량 데이터 불러오기 */
+	public ArrayList<DataVO> getTradingVol(String query, String day)
+	{
+String sql = "";
+		
+		sql += "WITH DateSeries AS (";
+		sql +=     "SELECT d.date, ";
+		sql +=         "COALESCE(t.trend, 'fl') AS trend, ";
+		sql +=         "COALESCE(t.volume, 0) AS volume ";
+		sql +=     "FROM date_table d ";
+		sql +=     "LEFT JOIN tradingvolume t ";
+		sql +=     "ON d.date = t.date AND t.name = ? ";
+		sql +=     "WHERE d.date BETWEEN DATE_SUB(CURDATE(), INTERVAL ? DAY) AND CURDATE()";
+		sql += ")";
+		
+		sql += "SELECT date, ";
+		sql +=     "trend, ";
+		sql +=     "volume ";
+		sql += "FROM DateSeries ";
+		sql += "ORDER BY date ASC;";
+		
+		System.out.println("[TradingVol (" + query + ", " + day + ")]");
+		
+		this.dbConnect();
+		this.executeQuery(sql, query, day);
+		
+		ArrayList<DataVO> tradingVol = new ArrayList<DataVO>();
+		
+		while(this.next())
+		{
+			DataVO vo = new DataVO();
+			
+			vo.setDate(this.getString("date"));
+			vo.setTrend(this.getString("trend"));
+			vo.setVolume(this.getString("volume"));
+			
+			tradingVol.add(vo);
+		}
+		this.dbDisConnect();
+		
+		return tradingVol;
+	}
+	
 	/* 핫뉴스 데이터 불러오기 */
 	public ArrayList<DataVO> getHotNews(String query, String day)
 	{
@@ -98,7 +141,16 @@ public class DataDTO extends DbManager
 		sql += "AND date > DATE_SUB(CURDATE(), INTERVAL ? DAY) ";
 		sql += "GROUP BY title, date, link ";
 		sql += "ORDER BY comment_count DESC ";
-		sql += "LIMIT 5) ";
+		sql += "LIMIT 5), ";
+		
+		sql += "RankedComments AS ( ";
+		sql += "SELECT title, ";
+		sql +=        "date, ";
+		sql +=        "comment, ";
+		sql +=        "up, ";
+		sql +=        "ROW_NUMBER() OVER (PARTITION BY title, date ORDER BY up DESC) AS rn ";
+		sql +=        "FROM newsComments ";
+		sql += ")";
 		
 		sql += "SELECT ta.title, ";
 		sql +=        "ta.date, ";
@@ -107,11 +159,9 @@ public class DataDTO extends DbManager
 		sql +=        "LEFT(c.comment, 50) AS comment, ";
 		sql +=        "c.up ";
 		sql += "FROM TopArticles ta ";
-		sql += "JOIN newsComments c ";
+		sql += "JOIN RankedComments c ";
 		sql += "ON ta.title = c.title AND ta.date = c.date ";
-		sql += "LEFT JOIN newsComments c2 ";
-		sql += "ON c.title = c2.title AND c.date = c2.date AND c.up < c2.up ";
-		sql += "WHERE c2.id IS NULL ";
+		sql += "WHERE c.rn = 1 ";
 		sql += "ORDER BY ta.comment_count DESC, ta.date DESC;";
 		
 		System.out.println("[HotNews    (" + query + ", " + day + ")]");

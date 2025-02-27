@@ -5,17 +5,18 @@
 function draw_pieChart(data) {
 	Highcharts.chart('pieChart', {
 		chart: {
-			type: 'pie'
+			type: 'pie',
+			width: 800,
+			spacingRight: 50,
+			spacingLeft: 50,
+			style: { fontFamily: '"Noto Sans KR", serif' }
 		},
 		title: {
-			text: ''
+			text: null
 		},
 		tooltip: {
-			valueSuffix: '%'
-		},
-		subtitle: {
-			text:
-				'Source:<a href="https://www.mdpi.com/2072-6643/11/3/684/htm" target="_default">MDPI</a>'
+			valueSuffix: '%',
+			style: { fontFamily: '"Noto Sans KR", serif' }
 		},
 		plotOptions: {
 			series: {
@@ -23,15 +24,20 @@ function draw_pieChart(data) {
 				cursor: 'pointer',
 				dataLabels: [{
 					enabled: true,
-					distance: 20
+					distance: 20,
+					style: {
+						fontSize: '16px',
+						fontWeight: '300',
+						fontFamily: '"Noto Sans KR", serif' }
 				}, {
 					enabled: true,
-					distance: -40,
-					format: '{point.percentage:.1f}%',
+					distance: -50,
+					format: '{point.percentage:.2f}%',
 					style: {
 						fontSize: '1.2em',
 						textOutline: 'none',
-						opacity: 0.7
+						opacity: 0.7,
+						fontFamily: '"Noto Sans KR", serif'
 					},
 					filter: {
 						operator: '>',
@@ -44,9 +50,9 @@ function draw_pieChart(data) {
 		series: [{
 			name: 'Sentiment',
 			data: [
-				{ name: 'Positive', y: data.positive, color: '#ff0000' },
-				{ name: 'Neutral',  y: data.neutral,  color: '#808080' },
-				{ name: 'Negative', y: data.negative, color: '#0000ff' }
+				{ name: 'Positive', y: data.positive, color: '#f05650' },
+				{ name: 'Neutral',  y: data.neutral,  color: '#D0D0D0' },
+				{ name: 'Negative', y: data.negative, color: '#4AA8D8' }
 			]
 		}]
 	});

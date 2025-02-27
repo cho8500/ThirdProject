@@ -29,6 +29,8 @@ public class DataVO
 	private String pos_count;	// 긍정수
 	private String neg_count;	// 부정수
 	private String ntr_count;	// 중립수
+	private String trend;		// 전일비
+	private String volume;		// 거래량
 	
 	/* GETTER */
 	public String getId()         { return id;         }
@@ -45,11 +47,13 @@ public class DataVO
 	public String getSent_score() { return sent_score; }
 	
 	public String getView()       { return view;       }
-	public String getCount()      { return count;       }
+	public String getCount()      { return count;      }
 	public String getPos_count()  { return pos_count;  }
 	public String getNeg_count()  { return neg_count;  }
 	public String getNtr_count()  { return ntr_count;  }
 	public String getCmt_count()  { return cmt_count;  }
+	public String getTrend()      { return trend;      }
+	public String getVolume()     { return volume;     }
 	
 	/* SETTER */
 	public void setId(String id)                 { this.id         = id;         }
@@ -71,5 +75,7 @@ public class DataVO
 	public void setNeg_count(String neg_count)   { this.neg_count  = neg_count;  }
 	public void setNtr_count(String ntr_count)   { this.ntr_count  = ntr_count;  }
 	public void setCmt_count(String cmt_count)   { this.cmt_count  = cmt_count;  }
+	public void setTrend(String trend)           { this.trend      = trend;      }
+	public void setVolume(String volume)         { this.volume     = volume;     }
 	
 }

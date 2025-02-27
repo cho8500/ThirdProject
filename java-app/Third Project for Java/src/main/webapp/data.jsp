@@ -15,6 +15,7 @@ DataDTO dto = new DataDTO();
 /* 데이터 호출 */
 ArrayList<DataVO> stockNames  = dto.getStockNames();
 ArrayList<DataVO> stackData   = dto.getStackData(query, day);
+ArrayList<DataVO> tradingVol  = dto.getTradingVol(query, day);
 ArrayList<DataVO> hotNewsData = dto.getHotNews(query, day);
 ArrayList<DataVO> pieData     = dto.getPieData(query, day);
 ArrayList<DataVO> boardData   = dto.getBoardData(query, day);
@@ -22,6 +23,7 @@ ArrayList<DataVO> boardData   = dto.getBoardData(query, day);
 JsonObject jsonResponse = new JsonObject();
 jsonResponse.add("stockNames",  new Gson().toJsonTree(stockNames));
 jsonResponse.add("stackData",   new Gson().toJsonTree(stackData));
+jsonResponse.add("tradingVol",  new Gson().toJsonTree(tradingVol));
 jsonResponse.add("hotNewsData", new Gson().toJsonTree(hotNewsData));
 jsonResponse.add("pieData",     new Gson().toJsonTree(pieData));
 jsonResponse.add("boardData",   new Gson().toJsonTree(boardData));

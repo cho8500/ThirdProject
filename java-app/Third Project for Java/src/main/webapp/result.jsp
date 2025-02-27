@@ -39,12 +39,10 @@
 			a {
 				text-decoration: none;
 				color: inherit;
-				display: block;
-				padding: 5px;
 			}
 			
 			a:hover {
-				color: #ff6600;
+				color: #ff6666;
 			}
 			
 			.container {
@@ -194,6 +192,48 @@
 				color: #fff;
 			}
 			
+			/* 햄버거 메뉴 */
+			#hamburgerButton {
+				position: fixed;
+				top: 110px;
+				right: 40px;
+				background: none;
+				border: none;
+				cursor: pointer;
+			}
+			
+			#hamburgerButton img {
+				width: 25px;
+				height: 25px;
+			}
+			
+			.dropdown-content {
+				display: none;
+				position: fixed;
+				top: 110px;
+				right: 40px;
+				background-color: white;
+				box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+				border-radius: 5px;
+				width: 300px;
+				max-height: 500px;
+				overflow-y: auto;
+			}
+			
+			.dropdown-content a {
+				display: block;
+				padding: 12px;
+				text-decoration: none;
+				color: black;
+				font-size: 16px;
+				border-bottom: 1px solid #ddd;
+				cursor: pointer;
+			}
+			
+			.dropdown-content a:hover {
+				background-color: #f1f1f1;
+			}
+			
 			/* 탭 하단부 */
 			 .part_container {
 			 	flex: 1;
@@ -202,94 +242,67 @@
 			 	align-items: center;
 			 	justify-content: center;
 			 	width: 100%;
-			 	padding: 40px 0;
+			 	margin: 40px 0;
 			 	position: relative;
 			 }
 			 
-			.part_title,
-			.desc {
+			.part_title {
 				position: relative;
-				left: 25%;
-				transform: translateX(-25%);
+				left: 20%;
 				text-align: left;
 				max-width: 80%;
 				align-self: flex-start;
-				margin-bottom: 10px;
+				margin-bottom: 15px;
+				font-size: 30px;
+				font-weight: 700;
+				color: #333;
 			}
 			
-			.part_title {
-				font-size: 14px;
-				color: #666;
+			.desc {
+				position: relative;
+				left: 20%;
+				text-align: left;
+				max-width: 80%;
+				align-self: flex-start;
+				margin-bottom: 30px;
+				font-size: 16px;
+				font-weight: 400;
+				color: #555;
 			}
 			
-			.stackcharts-figure,
-			.piecharts-figure,
-			#hotNewsTable,
-			#boardTable {
-				width: 80%;
-				max-width: 1500px;
+			#stackChart_container {
+				margin-bottom: 0;
 			}
 			
-			/* 
-			#hotNew_container,
+			.dataTable {
+				left: 40%;
+				width: 60%;
+				border-collapse: collapse;
+			}
+			
+			.dataTable tr {
+				height: 40px;
+			}
+			
+			.dataTable td {
+				white-space: nowrap;
+				overflow: hidden;
+				text-overflow: ellipsis;
+			}
+			
+			#hotNewsTable th,
+			#hotNewsTable tr:nth-child(even) td {
+				border-bottom: 1px solid #CCC;
+			}
+			
+			#boardTable th,
+			#boardTable td {
+				border-bottom: 1px solid #CCC;
+			}
+			
 			#board_container {
-				display: flex;
-				flex-direction: column;
-				align-items: center;
-				justify-content: center;
-				text-align: center;
+				margin-bottom: 200px;
 			}
-			
-			#hotNewsTable,
-			#boardTable {
-				border-collapse: collapse;
-				width: 80%;
-				max-width: 900px;
-				margin: 0 auto;
-				text-align: center;
-				border: 1px solid #ccc;
-			}
-			
-			#hotNewsTable th, #hotNewsTable td {
-				padding: 10px;
-				border: 1px solid #ddd;
-			}
-			
-			#hotNewsTable tr:nth-child(even) {
-				background-color: #f9f9f9;
-			}
-			
-			#hotNewsTable tr:hover {
-				background-color: #f1f1f1;
-			}
-			
-			#boardTable {
-				width: 100%;
-				max-width: 500px;
-				border-collapse: collapse;
-				text-align: center;
-				margin-top: 20px;
-			}
-			
-			#boardTable th, #boardTable td {
-				padding: 10px;
-				border: 1px solid #ddd;
-			}
-			
-			#boardTable thead {
-				background-color: #f8f9fa;
-				font-weight: bold;
-			}
-			
-			#boardTable tr:nth-child(even) {
-				background-color: #f9f9f9;
-			}
-			
-			#boardTable tr:hover {
-				background-color: #f1f1f1;
-			cursor: pointer;
-			}
-			 */
 			</style>
 	</head>
 	<body>
@@ -319,37 +332,56 @@
 				<input type="number" id="day" value="90" min="7" placeholder="day">
 				<button id="dayUpdateButton">일 보기</button>
 			</div>
+			
+			<!-- 햄버거 메뉴 -->
+			<button id="hamburgerButton"><img src="./img/bars.png"></button>
+			<div id="stockDropdown" class="dropdown-content"></div>
 		</div>
 		
 		<!-- 탭 하단부 -------------------------------------------------------------------->
 		<div class=container>
 			<!-- 스택차트 파트 -->
 			<div id="stackChart_container" class="part_container">
-				<h2 class="part_title">뉴스 분석 결과</h2>
+				<span class="part_title">뉴스 분석 결과</span>
 				<span class="desc">
-					기간내 종목과 관계된 뉴스의 댓글을 모아서 분석한 결과입니다.
+					<span class="descDay"></span>일 내 종목과 관련된 뉴스의 댓글을 모아서 분석한 결과입니다. 하단의 거래량 차트와 함께 표시됩니다.
 				</span>
 				<figure class="stackcharts-figure">
 					<div id="stackChart"></div>
 				</figure>
 			</div>
 			
-			<!-- 핫뉴스 파트 -->
-			<div id="hotNew_container" class="part_container">
-				<h2 class="part_title">핫 뉴스</h2>
-				<span class="desc">
-					가장 많은 댓글이 달긴 기사들과 그 안에서 가장 많은 추천을 받은 댓글입니다.<br>
-					기사 제목 클릭시 해당 페이지로 이동합니다.
-				</span>
-				<table id="hotNewsTable" class="dataTable"></table>
+			<!-- 거래량차트 파트 -->
+			<div id="columnChart_container" class="part_container">
+				<figure class="columncharts-figure">
+					<div id="tradingChart"></div>
+				</figure>
 			</div>
 			
+			<!-- 핫뉴스 파트 -->
+			<div id="hotNew_container" class="part_container">
+				<span class="part_title">핫 뉴스</span>
+				<span class="desc">
+					<span class="descDay"></span>일 내 핫한 기사와 가장 많은 추천을 받은 댓글입니다. 제목 클릭시 해당 페이지로 이동합니다.
+				</span>
+				<table id="hotNewsTable" class="dataTable">
+					<thead>
+						<tr>
+							<th style="width: 70px;">순위</th>
+							<th style="width: 150px;">날짜</th>
+							<th>제목</th>
+							<th style="width: 60px;"><th>
+						</tr>
+					</thead>
+					<tbody></tbody>
+				</table>
+			</div>
 			
 			<!-- 파이차트 파트 -->
 			<div id="pieChart_container" class="part_container">
-				<h2 class="part_title">종토방 온도계</h2>
+				<span class="part_title">종토방 온도계</span>
 				<span class="desc">
-					기간내 네이버 증권의 종목토론방의 게시물들을 분석한 결과입니다.
+					<span class="descDay"></span>일 내 네이버 증권의 종목토론방의 게시물들을 분석한 결과입니다.
 				</span>
 				<figure class="piecharts-figure">
 					<div id="pieChart"></div>
@@ -358,17 +390,29 @@
 			
 			<!-- 종토방 댓글 파트 -->
 			<div id="board_container" class="part_container">
-				<h2 class="part_title">종토방 인기 게시글</h2>
+				<span class="part_title">종토방 인기 게시글</span>
 				<span class="desc">
-					종목토론방 게시글 중 가장 많은 추천을 받은 게시글입니다.
-					게시글 제목 클릭시 해당 페이지로 이동합니다.
+					<span class="descDay"></span>일 내 종목토론방 게시글 중 가장 많은 추천을 받은 게시글입니다. 제목 클릭시 해당 페이지로 이동합니다.
 				</span>
-				<table id="boardTable" class="dataTable"></table>
+				<table id="boardTable" class="dataTable">
+					<thead>
+						<tr>
+							<th style="width: 70px;">순위</th>
+							<th style="width: 150px;">날짜</th>
+							<th>제목</th>
+							<th style="width: 120px;">조회수</th>
+							<th style="width: 120px;">추천</th>
+							<th style="width: 120px;">비추천</th>
+						</tr>
+					</thead>
+					<tbody></tbody>
+				</table>
 			</div>
 		</div>
 		
 		<!-- 스크립트 -------------------------------------------------------------------->
 		<script src="./js/stack.js"></script>
+		<script src="./js/column.js"></script>
 		<script src="./js/pie.js"></script>
 		<script src="./js/searchbar.js"></script>
 		<script src="./js/result.js"></script>
