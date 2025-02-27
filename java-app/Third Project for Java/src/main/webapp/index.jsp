@@ -9,7 +9,10 @@
 	<head>
 		<meta charset="UTF-8">
 		<title>WAGLE WAGLE</title>
+		<!-- 스타일 시트 -------------------------------------------------------------------->
 		<link rel="stylesheet" href="./css/index.css">
+		
+		<!-- 글꼴 ------------------------------------------------------------------------->
 		<link rel="preconnect" href="https://fonts.googleapis.com">
 		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 		<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@100..900&display=swap" rel="stylesheet">
@@ -35,7 +38,7 @@
 			<div id="autocomplete_list"></div>
 		</div>
 		
-		<!-- 페이지 스크립트 -->
+		<!-- 스크립트 -------------------------------------------------------------------->
 		<script src="./js/searchbar.js"></script>
 		<script src="./js/index.js"></script>
 	</body>

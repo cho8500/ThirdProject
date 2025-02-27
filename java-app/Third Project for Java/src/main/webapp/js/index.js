@@ -1,10 +1,10 @@
 /**
- *  index 스크립트
+ *  index.jsp 스크립트
  */
 
-let stockData = [];
-
 document.addEventListener("DOMContentLoaded", function () {
+
+	let stockData = [];
 	
 	fetch("data.jsp")
 		.then(response => response.json())

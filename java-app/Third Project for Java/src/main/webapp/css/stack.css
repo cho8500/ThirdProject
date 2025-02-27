@@ -6,12 +6,6 @@
 	margin: 0 auto;
 }
 
-/* .stackcharts-figure, .highcharts-data-table table {
-	min-width: 500px;
-	max-width: 1200px;
-	margin: 1em auto;
-} */
-
 .stackcharts-figure {
 	display: flex;
 	justify-content: center;

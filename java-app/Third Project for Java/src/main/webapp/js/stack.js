@@ -1,10 +1,6 @@
 /**
  *	stack chart js
  */
-// Data retrieved from:
-// - https://en.as.com/soccer/which-teams-have-won-the-premier-league-the-most-times-n/
-// - https://www.statista.com/statistics/383679/fa-cup-wins-by-team/
-// - https://www.uefa.com/uefachampionsleague/history/winners/
 
 function draw_stackChart(data) {
 	Highcharts.chart('stackChart', {
@@ -93,6 +89,5 @@ function load_stackData(stackData) {
 		else if (item.sent_type === 'negative') negative.push(Number(item.count));
 		else if (item.sent_type === 'neutral')  neutral.push(Number(item.count));
 	});
-	
 	draw_stackChart({ categories, positive, neutral, negative });
 }

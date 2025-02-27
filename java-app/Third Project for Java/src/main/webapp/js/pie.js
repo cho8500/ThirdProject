@@ -75,6 +75,5 @@ function load_pieData(pieData) {
 		else if (item.sent_type === 'negative') negative += Number(item.count);
 		else if (item.sent_type === 'neutral')  neutral  += Number(item.count);
 	});
-	
 	draw_pieChart({ positive, neutral, negative });
 }
