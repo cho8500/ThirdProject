@@ -15,7 +15,7 @@ from  datetime import datetime, timedelta
 
 import re
 def extract_kr_en_cn(inputString): # 한글만 받아오기
-    pattern = re.compile(r"[가-힣a-zA-Z一-龥]+")
+    pattern = re.compile(r"[가-힣a-zA-Z0-9一-龥\s\.,!?]+")
     matches = pattern.findall(inputString)
     return ' '.join(matches)
 
@@ -82,6 +82,8 @@ def insert_into_db(date, stock_name, stock_code, title, article_url, recomms, un
     """ 첫 번째 데이터 삽입 (comment까지) """
     db = DBManager()
     db.DBOpen(host="localhost", dbname="third_project", id="root", pw="ezen")
+    
+    
     
     df = pd.DataFrame({
         "date": date,

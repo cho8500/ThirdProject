@@ -15,7 +15,7 @@ from  datetime import datetime, timedelta
 
 import re
 def extract_kr_en_cn(inputString): # 한글만 받아오기
-    pattern = re.compile(r"[가-힣a-zA-Z一-龥]+")
+    pattern = re.compile(r"[가-힣a-zA-Z0-9一-龥\s\.,!?]+")
     matches = pattern.findall(inputString)
     return ' '.join(matches)
 
@@ -55,7 +55,7 @@ def fetch_news_links(driver, stock_name, stock_code, current_date_dash):
     driver.get(search_url)
     
     try:
-        WAIT(driver, 10).until(EC.presence_of_all_elements_located((By.CSS_SELECTOR, ".articlesubject a")))
+        WAIT(driver, 10).until(EC.presence_of_all_elements_located((By.CSS_SELECTOR, ".articleSubject a")))
         print("뉴스 데이터 찾음")
     except:
         print(f"[WARN] {stock_name}- {current_date_dash}에 대한 뉴스 데이터 없음")
@@ -87,10 +87,10 @@ def fetch_news_links(driver, stock_name, stock_code, current_date_dash):
         driver.get(f"{search_url}&page={page}")
         time.sleep(3)
         try:
-            WAIT(driver, 10).until(EC.presence_of_all_elements_located((By.CSS_SELECTOR, ".articlesubject a")))
+            WAIT(driver, 10).until(EC.presence_of_all_elements_located((By.CSS_SELECTOR, ".articleSubject a")))
             page_source = driver.page_source
             soup = BeautifulSoup(page_source, "html.parser")
-            article_subjects = soup.select(".articlesubject a")
+            article_subjects = soup.select(".articleSubject a")
             for subject in article_subjects:
                 link = subject.get("href")
                 if link:
@@ -166,8 +166,8 @@ def main():
     driver = setup_driver()
     
     # 시작 날짜와 종료 날짜 설정
-    start_date = datetime(2024, 6, 1)
-    end_date = datetime(2024, 6, 2)
+    start_date = datetime(2024, 10, 1)
+    end_date = datetime(2024, 10, 2)
     
     # current_date를 시작 날짜로 초기화
     current_date = start_date
