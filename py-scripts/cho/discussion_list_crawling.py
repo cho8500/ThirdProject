@@ -74,7 +74,7 @@ def crawl_discussion(name, code, start_date, end_date) :
                 first_date = cols[0].text.strip()[:10]
                 break
 
-            print(f"[{name}] page : {page} / 최상단 날짜 : {first_date} / step size : {step_size}")
+            # print(f"[{name}] page : {page} / 최상단 날짜 : {first_date} / step size : {step_size}")
 
             if first_date is None :
                 print(f"[ERROR] {name} {page}페이지 날짜 확인 불가")
@@ -98,7 +98,7 @@ def crawl_discussion(name, code, start_date, end_date) :
                 print(f"[{name}] page={page} 범위 내 탐색 시작")
 
                 while True :
-                    print(f"[{name}] page={page} first_date={first_date} 크롤링 중...")
+                    # print(f"[{name}] page={page} first_date={first_date} 크롤링 중...")
                     soup = BeautifulSoup(driver.page_source, "html.parser")
                     rows = soup.select(".type2 tbody tr")
 
