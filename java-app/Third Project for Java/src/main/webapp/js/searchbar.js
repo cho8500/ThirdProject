@@ -15,7 +15,7 @@ document.addEventListener("DOMContentLoaded", function() {
 });
 
 /* 자동완성 */
-function autoComplete() {
+function autoComplete(stockData) {
 
 	let query = document.querySelector("#query").value.toUpperCase().trim();
 	let list  = document.querySelector("#autocomplete_list");
