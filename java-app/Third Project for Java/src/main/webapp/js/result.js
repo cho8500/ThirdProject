@@ -15,10 +15,22 @@ document.addEventListener("DOMContentLoaded", function() {
 		updateDateRange(day);
 	}
 	
+	/* 검색 버튼 클릭 */
 	document.querySelector("#search_button").addEventListener("click", function() {
-		validateQuery();
+		validateQuery(stockData);
 	});
-
+	
+	document.querySelector("#query").addEventListener("keyup", function() { autoComplete(stockData); });
+	document.querySelector("#query").addEventListener("focus", function() { autoComplete(stockData); });
+	document.querySelector("#query").addEventListener("blur", function() { hideAutoComplete(); });
+	document.querySelector("#query").addEventListener("keydown", function(event) {
+		if (event.key === "Enter") {
+			event.preventDefault();
+			validateQuery(stockData);
+		}
+	});
+	
+	/* 날짜 업데이트 : 버튼 클릭으로 검색 실행 */
 	document.querySelector("#dayUpdateButton").addEventListener("click", function() {
 		let newDay = document.querySelector("#day").value;
 		
@@ -26,6 +38,7 @@ document.addEventListener("DOMContentLoaded", function() {
 		loadData(document.querySelector("#query").value, newDay);
 	});
 	
+	/* 날짜 업데이트 : 엔터키로 검색 실행 */
 	document.querySelector("#day").addEventListener("keydown", function(event) {
 		if (event.key === "Enter") {
 			let newDay = document.querySelector("#day").value;
@@ -35,12 +48,14 @@ document.addEventListener("DOMContentLoaded", function() {
 		}
 	});
 	
+	/* 햄버거 메뉴 열고 닫기 */
 	document.querySelector("#hamburgerButton").addEventListener("click", function() {
 		let stockDropdown = document.querySelector("#stockDropdown");
 		
 		stockDropdown.style.display = stockDropdown.style.display === "block" ? "none" : "block";
 	});
 	
+	/* 햄버거 메뉴 열고 닫기 : 클릭 위치에 따라 실행 */
 	document.addEventListener("click", function(event) {
 		let hamburgerButton = document.querySelector("#hamburgerButton");
 		let stockDropdown   = document.querySelector("#stockDropdown");
@@ -51,7 +66,7 @@ document.addEventListener("DOMContentLoaded", function() {
 	});
 });
 
-/* 차트 헤더 날짜 표시 & 업데이트*/
+/* 차트 헤더 날짜 표시 & 업데이트 */
 function formatDate(date) {
 
 	let year = date.getFullYear();
@@ -80,6 +95,7 @@ function updateDateRange(dayVal) {
 	});
 }
 
+/* 햄버거 메뉴 종목 업데이트 */
 function setupHamburgerMenu(stockData) {
 	
 	let stockDropdown = document.querySelector("#stockDropdown");
@@ -110,15 +126,14 @@ function loadData(query, day) {
 	fetch(`data.jsp?query=${query}&day=${day}`)
 		.then(response => response.json())
 		.then(data => {
-			stockData = data.stockNames;
 			load_stackData(data.stackData);
 			load_tradingVol(data.tradingVol);
 			updateHotNews(data.hotNewsData);
 			load_pieData(data.pieData);
 			updateBoardData(data.boardData);
 			
+			stockData = data.stockNames;
 			setupHamburgerMenu(stockData);
-			
 			stockData.forEach(stock => {
 				
 				if (stock.name == query) {
@@ -127,16 +142,29 @@ function loadData(query, day) {
 					return;
 				} 
 			});
+			document.querySelector("#query").value = query;
 			document.querySelector("#companyName").innerHTML = `
 				${query} <span style="color: #AAA;">(${code})</span>
 			`;
-			document.querySelector("#query").value = query;
+			
+			queryInput.addEventListener("keyup", function() {
+				autoComplete(stockData);
+			});
+
+			queryInput.addEventListener("focus", function() {
+				autoComplete(stockData);
+			});
+			
+			queryInput.addEventListener("blur", function() {
+				hideAutoComplete();
+			});
 		})
 		.catch(error => console.error("DATA LOADING ERROR : ", error));
 	
 	console.log("[query] " + query + " [day] " + day);
 }
 
+/* 핫뉴스 테이블 업데이트 */
 function updateHotNews(hotNews) {
 	let table = document.querySelector("#hotNewsTable tbody");
 	table.innerHTML = "";
@@ -164,6 +192,7 @@ function updateHotNews(hotNews) {
 	});
 }
 
+/* 종토방 게시글 테이블 업데이트 */
 function updateBoardData(boardData) {
 	let table = document.querySelector("#boardTable tbody");
 	table.innerHTML = "";

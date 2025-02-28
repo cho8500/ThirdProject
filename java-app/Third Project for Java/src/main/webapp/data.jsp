@@ -10,15 +10,31 @@
 String query = request.getParameter("query");
 String day   = request.getParameter("day");
 
+boolean pageFlag = false;
+
+if (query == null) pageFlag = true;
+
 DataDTO dto = new DataDTO();
 
+ArrayList<DataVO> stockNames  = null;
+ArrayList<DataVO> stackData   = null;
+ArrayList<DataVO> tradingVol  = null;
+ArrayList<DataVO> hotNewsData = null;
+ArrayList<DataVO> pieData     = null;
+ArrayList<DataVO> boardData   = null;
+
 /* 데이터 호출 */
-ArrayList<DataVO> stockNames  = dto.getStockNames();
-ArrayList<DataVO> stackData   = dto.getStackData(query, day);
-ArrayList<DataVO> tradingVol  = dto.getTradingVol(query, day);
-ArrayList<DataVO> hotNewsData = dto.getHotNews(query, day);
-ArrayList<DataVO> pieData     = dto.getPieData(query, day);
-ArrayList<DataVO> boardData   = dto.getBoardData(query, day);
+if(pageFlag)
+{
+	stockNames  = dto.getStockNames();
+} else {
+	stockNames  = dto.getStockNames();
+	stackData   = dto.getStackData(query, day);
+	tradingVol  = dto.getTradingVol(query, day);
+	hotNewsData = dto.getHotNews(query, day);
+	pieData     = dto.getPieData(query, day);
+	boardData   = dto.getBoardData(query, day);
+}
 
 JsonObject jsonResponse = new JsonObject();
 jsonResponse.add("stockNames",  new Gson().toJsonTree(stockNames));

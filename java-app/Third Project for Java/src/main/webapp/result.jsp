@@ -36,14 +36,8 @@
 				
 				<!-- 검색창 -->
 				<div id="search_container">
-					<input type="text" id="query" name="query" placeholder="종목의 이름 또는 코드를 입력하세요"
-						onkeyup="autoComplete()"
-						onfocus="autoComplete()"
-						onblur="hideAutoComplete()"
-						autocomplete="off">
-					<button id="search_button">
-						<img src="./img/magnifying_glass.png" alt="Search">
-					</button>
+					<input type="text" id="query" name="query" placeholder="종목의 이름 또는 코드를 입력하세요" autocomplete="off">
+					<button id="search_button"><img src="./img/magnifying_glass.png" alt="Search"></button>
 					<div id="autocomplete_list"></div>
 				</div>
 			</div>
