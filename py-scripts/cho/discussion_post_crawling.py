@@ -42,7 +42,7 @@ def crawl_comment(name, date, url, driver) :
     comment    = None
 
     try :
-        print(f"[INFO] 크롤링 시작 [{name}] {date} : {url}")
+        # print(f"[INFO] 크롤링 시작 [{name}] {date} : {url}")
         driver.get(url)
 
         try :

@@ -49,7 +49,7 @@ class DBManager :
        ===================================='''
     # INSERT, UPDATE, DELETE
     def execute(self, sql, values=None) :
-        print(f"SQL : {sql}")
+        # print(f"SQL : {sql}")
 
         try :
             self.cursor = self.con.cursor()
@@ -103,7 +103,7 @@ class DBManager :
        ================='''
     # SELECT
     def executeQuery(self, sql, values=None) :
-        print(f"SQL : {sql}")
+        # print(f"SQL : {sql}")
 
         try :
             self.cursor = self.con.cursor()
