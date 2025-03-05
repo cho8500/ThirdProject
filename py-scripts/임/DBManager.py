@@ -128,11 +128,12 @@ class DBManager :
         return df
     
         # 데이터프레임을 사용하여 업데이트를 실행하는 메소드
+        '''
     def update_df(self, df):  # <--- 여기에 새로 추가된 메소드입니다
         try:
             self.cursor = self.con.cursor()
             for index, row in df.iterrows():
-                update_sql = f"UPDATE newsComments SET analysis = 'T', sent_type = '{row['sent_type']}', sent_score = {row['sent_score']} WHERE comment = '{row['comment']}'"
+                update_sql = f"UPDATE newsComments1 SET analysis = 'T', sent_type = '{row['sent_type']}', sent_score = {row['sent_score']} WHERE comment = '{row['comment']}'"
                 print(f"sql : {update_sql}")
                 self.cursor.execute(update_sql)
             self.con.commit()
@@ -143,3 +144,25 @@ class DBManager :
             print(f"데이터 업데이트 중 오류 발생: {e}")
             self.con.rollback()
             return False
+        '''
+    def update_df(self, df):  # <--- 여기에 새로 추가된 메소드입니다
+        try:
+            self.cursor = self.con.cursor()
+            total_updated = 0
+            for index, row in df.iterrows():
+                update_sql = "UPDATE newsComments1 SET analysis = 'T', sent_type = %s, sent_score = %s WHERE comment = %s"
+                params = ( row['sent_type'], row['sent_score'], row['comment'])
+                self.cursor.execute(update_sql, params)
+                affected_rows = self.cursor.rowcount
+                total_updated += affected_rows
+                if affected_rows == 0:
+                    print(f"[WARN] 업데이트된 레코드가 없습니다. comment: '{row['comment']}'")
+            self.con.commit()
+            self.cursor.close()
+            print(f"{total_updated}개의 데이터가 성공적으로 업데이트되었습니다.")
+            return True
+        except Exception as e:
+            print(f"데이터 업데이트 중 오류 발생: {e}")
+            self.con.rollback()
+            return False
+

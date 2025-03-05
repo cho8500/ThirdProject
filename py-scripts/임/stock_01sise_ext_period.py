@@ -29,7 +29,7 @@ for name, code in list.items() :
     sise_table = None
 
     # 원하는 page(기간) 입력
-    page = 18
+    page = 19
 
     # ~ 검색 당일의 시세까지 가져오기
     # daily 코드(stock_01sise_ext_daily)와 같이 사용하면 중복 데이터가 발생할 수 있음
@@ -72,6 +72,7 @@ for name, code in list.items() :
 
     # 2025년 6월 이전의 데이터를 필터링하여 삭제
     sise_table = sise_table[sise_table['date'] >= '2024.06.01']
+    sise_table = sise_table[sise_table['date'] <= '2025.03.01']
 
     # 각각의 데이터프레임을 리스트에 저장
     all_sise_data.append(sise_table)

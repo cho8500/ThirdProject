@@ -123,7 +123,7 @@ def fetch_comments(driver, article_url):
     driver.get(article_url)
     time.sleep(2)
     soup = BeautifulSoup(driver.page_source, "html.parser")
-    title_element = soup.select_one(".article_info h3ine")
+    title_element = soup.select_one(".media_end_head_headline")
     #title_element = soup.select_one(".article_info h3")
     title = title_element.text.strip() if title_element else "제목을 찾을 수 없습니다."
 
@@ -190,7 +190,8 @@ def update_analysis_in_db(comments, scores, evaluations):
     db.DBOpen(host="localhost", dbname="third_project", id="root", pw="ezen")
 
     # 특수 문자 처리
-    comments_processed = [comment.replace("'", "''").replace("`", "``").replace("\\", "\\\\") for comment in comments]
+    # comments_processed = [comment.replace("'", "''").replace("`", "``").replace("\\", "\\\\") for comment in comments]
+    comments_processed = [c.replace("'", "''").replace("`", "``").replace("\\", "\\\\") for c in comments]
 
     # resultupdate 데이터프레임 생성
     resultupdate = pd.DataFrame({
@@ -199,6 +200,8 @@ def update_analysis_in_db(comments, scores, evaluations):
         "sent_score": scores,
         "comment": comments_processed
     })
+
+    print(f"{resultupdate}+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
 
     # 데이터 업데이트
     db.update_df(resultupdate)
@@ -209,8 +212,8 @@ def main():
     driver = setup_driver()
 
     # 시작 날짜와 종료 날짜 설정 
-    start_date = datetime(2024, 10, 1)
-    end_date = datetime(2024, 10, 2)
+    start_date = datetime(2025, 1, 9)
+    end_date = datetime(2025, 2, 28)
 
     # current_date를 시작 날짜로 초기화
     current_date = start_date
@@ -249,7 +252,6 @@ def main():
                 insert_into_db(date_str, stock_name, stock_code, title, article_url, recomms, unrecomms, comments)
                 update_analysis_in_db(comments, scores, evaluations)
 
-        exit()
         current_date += timedelta(days=1)
 
     driver.quit()
