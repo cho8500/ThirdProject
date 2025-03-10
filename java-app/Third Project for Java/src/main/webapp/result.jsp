@@ -13,35 +13,43 @@
 		<link rel="stylesheet" href="./css/stack.css">
 		<link rel="stylesheet" href="./css/pie.css">
 		<link rel="stylesheet" href="./css/result.css">
-		
+
 		<!-- 글꼴 ------------------------------------------------------------------------->
 		<link rel="preconnect" href="https://fonts.googleapis.com">
 		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 		<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@100..900&display=swap" rel="stylesheet">
-		
+
 		<!-- 하이차트 라이브러리 --------------------------------------------------------------->
 		<script src="https://code.highcharts.com/highcharts.js"></script>
 		<script src="https://code.highcharts.com/modules/exporting.js"></script>
 		<script src="https://code.highcharts.com/modules/export-data.js"></script>
 		<script src="https://code.highcharts.com/modules/accessibility.js"></script>
-		
+		<script>
+			const stockData = [];
+		</script>
 	</head>
 	<body>
 		<!-- 상단 고정탭 -------------------------------------------------------------------->
 		<div id="header_container">
 			<div id="topHeader">
-			
+
 				<!-- 로고 -->
 				<a href="./index.jsp"><img id="logo" src="./img/logo4.PNG"></a>
-				
+
 				<!-- 검색창 -->
 				<div id="search_container">
-					<input type="text" id="query" name="query" placeholder="종목의 이름 또는 코드를 입력하세요" autocomplete="off">
-					<button id="search_button"><img src="./img/magnifying_glass.png" alt="Search"></button>
+					<input type="text" id="query" name="query" placeholder="종목의 이름 또는 코드를 입력하세요"
+						onkeyup="autoComplete(stockData)"
+						onfocus="autoComplete(stockData)"
+						onblur="hideAutoComplete()"
+						autocomplete="off">
+					<button id="search_button">
+						<img src="./img/magnifying_glass.png" alt="Search">
+					</button>
 					<div id="autocomplete_list"></div>
 				</div>
 			</div>
-			
+
 			<!-- 이름 & 날짜 표시 -->
 			<div id="pageHeader">
 				<span id="companyName"></span>
@@ -49,15 +57,15 @@
 				<input type="number" id="day" value="90" min="7" placeholder="day">
 				<button id="dayUpdateButton">일 보기</button>
 			</div>
-			
+
 			<!-- 햄버거 메뉴 -->
 			<button id="hamburgerButton"><img src="./img/bars.png"></button>
 			<div id="stockDropdown" class="dropdown-content"></div>
 		</div>
-		
+
 		<!-- 탭 하단부 -------------------------------------------------------------------->
 		<div class=container>
-		
+
 			<!-- 스택차트 파트 -->
 			<div id="stackChart_container" class="part_container">
 				<span class="part_title">뉴스 분석 결과</span>
@@ -68,14 +76,14 @@
 					<div id="stackChart"></div>
 				</figure>
 			</div>
-			
+
 			<!-- 거래량차트 파트 -->
 			<div id="columnChart_container" class="part_container">
 				<figure class="columncharts-figure">
 					<div id="tradingChart"></div>
 				</figure>
 			</div>
-			
+
 			<!-- 핫뉴스 파트 -->
 			<div id="hotNew_container" class="part_container">
 				<span class="part_title">핫 뉴스</span>
@@ -94,7 +102,7 @@
 					<tbody></tbody>
 				</table>
 			</div>
-			
+
 			<!-- 파이차트 파트 -->
 			<div id="pieChart_container" class="part_container">
 				<span class="part_title">종토방 온도계</span>
@@ -105,7 +113,7 @@
 					<div id="pieChart"></div>
 				</figure>
 			</div>
-			
+
 			<!-- 종토방 댓글 파트 -->
 			<div id="board_container" class="part_container">
 				<span class="part_title">종토방 인기 게시글</span>
@@ -127,7 +135,7 @@
 				</table>
 			</div>
 		</div>
-		
+
 		<!-- 스크립트 -------------------------------------------------------------------->
 		<script src="./js/searchbar.js"></script>
 		<script src="./js/stack.js"></script>

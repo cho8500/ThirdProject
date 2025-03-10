@@ -4,62 +4,47 @@
 
 /* window onload */
 document.addEventListener("DOMContentLoaded", function() {
-	
+
 	let query = new URLSearchParams(window.location.search).get("query") || "";
 	let day   = new URLSearchParams(window.location.search).get("day") || "";
-	
+
 	if (query) {
 		document.querySelector("#query").value = query;
 		document.querySelector("#day").value   = day;
 		loadData(query, day);
 		updateDateRange(day);
 	}
-	
-	/* 검색 버튼 클릭 */
+
 	document.querySelector("#search_button").addEventListener("click", function() {
 		validateQuery(stockData);
 	});
-	
-	document.querySelector("#query").addEventListener("keyup", function() { autoComplete(stockData); });
-	document.querySelector("#query").addEventListener("focus", function() { autoComplete(stockData); });
-	document.querySelector("#query").addEventListener("blur", function() { hideAutoComplete(); });
-	document.querySelector("#query").addEventListener("keydown", function(event) {
-		if (event.key === "Enter") {
-			event.preventDefault();
-			validateQuery(stockData);
-		}
-	});
-	
-	/* 날짜 업데이트 : 버튼 클릭으로 검색 실행 */
+
 	document.querySelector("#dayUpdateButton").addEventListener("click", function() {
 		let newDay = document.querySelector("#day").value;
-		
+
 		updateDateRange(newDay);
 		loadData(document.querySelector("#query").value, newDay);
 	});
-	
-	/* 날짜 업데이트 : 엔터키로 검색 실행 */
+
 	document.querySelector("#day").addEventListener("keydown", function(event) {
 		if (event.key === "Enter") {
 			let newDay = document.querySelector("#day").value;
-			
+
 			updateDateRange(newDay);
 			loadData(document.querySelector("#query").value, newDay);
 		}
 	});
-	
-	/* 햄버거 메뉴 열고 닫기 */
+
 	document.querySelector("#hamburgerButton").addEventListener("click", function() {
 		let stockDropdown = document.querySelector("#stockDropdown");
-		
+
 		stockDropdown.style.display = stockDropdown.style.display === "block" ? "none" : "block";
 	});
-	
-	/* 햄버거 메뉴 열고 닫기 : 클릭 위치에 따라 실행 */
+
 	document.addEventListener("click", function(event) {
 		let hamburgerButton = document.querySelector("#hamburgerButton");
 		let stockDropdown   = document.querySelector("#stockDropdown");
-		
+
 		if (!hamburgerButton.contains(event.target) && !stockDropdown.contains(event.target)) {
 			stockDropdown.style.display = "none";
 		}
@@ -97,15 +82,15 @@ function updateDateRange(dayVal) {
 
 /* 햄버거 메뉴 종목 업데이트 */
 function setupHamburgerMenu(stockData) {
-	
+
 	let stockDropdown = document.querySelector("#stockDropdown");
-	
+
 	stockDropdown.innerHTML = "";
-	
+
 	stockData.forEach(stock => {
-		
+
 		let stockItem = document.createElement("a");
-		
+
 		stockItem.textContent = stock.name;
 		stockItem.href = "#";
 		stockItem.onclick = function() {
@@ -122,45 +107,37 @@ function loadData(query, day) {
 
 	let code          = "";
 	let companyName   = "";
-		
+
 	fetch(`data.jsp?query=${query}&day=${day}`)
 		.then(response => response.json())
 		.then(data => {
+
+			if(stockData.length == 0) {
+				data.stockNames.forEach( item => stockData.push(item) );
+			};
 			load_stackData(data.stackData);
 			load_tradingVol(data.tradingVol);
 			updateHotNews(data.hotNewsData);
 			load_pieData(data.pieData);
 			updateBoardData(data.boardData);
-			
-			stockData = data.stockNames;
+
 			setupHamburgerMenu(stockData);
 			stockData.forEach(stock => {
-				
+
 				if (stock.name == query) {
 					code = stock.code;
-					companyName = query; 
+					companyName = query;
 					return;
-				} 
+				}
 			});
 			document.querySelector("#query").value = query;
 			document.querySelector("#companyName").innerHTML = `
 				${query} <span style="color: #AAA;">(${code})</span>
 			`;
-			
-			queryInput.addEventListener("keyup", function() {
-				autoComplete(stockData);
-			});
-
-			queryInput.addEventListener("focus", function() {
-				autoComplete(stockData);
-			});
-			
-			queryInput.addEventListener("blur", function() {
-				hideAutoComplete();
-			});
+			document.querySelector("#query").value = query;
 		})
 		.catch(error => console.error("DATA LOADING ERROR : ", error));
-	
+
 	console.log("[query] " + query + " [day] " + day);
 }
 
@@ -168,19 +145,19 @@ function loadData(query, day) {
 function updateHotNews(hotNews) {
 	let table = document.querySelector("#hotNewsTable tbody");
 	table.innerHTML = "";
-	
+
 	hotNews.forEach((news, i) => {
-		
+
 		let title_row   = document.createElement("tr");
 		let comment_row = document.createElement("tr");
-		
+
 		title_row.innerHTML = `
 			<td style="text-align: center;">${i + 1}</td>
 			<td style="text-align: center;">${news.date}</td>
 			<td style="padding-left: 10px;"><a href="${news.link}" target="_blank">${news.title}</a></td>
 			<td></td>
 		`;
-		
+
 		comment_row.innerHTML = `
 			<td></td>
 			<td></td>
@@ -196,11 +173,11 @@ function updateHotNews(hotNews) {
 function updateBoardData(boardData) {
 	let table = document.querySelector("#boardTable tbody");
 	table.innerHTML = "";
-	
+
 	boardData.forEach((post, i) => {
-		
+
 		let row = document.createElement("tr");
-		
+
 		row.innerHTML = `
 			<td style="text-align: center;">${i + 1}</td>
 			<td style="text-align: center;">${post.date}</td>

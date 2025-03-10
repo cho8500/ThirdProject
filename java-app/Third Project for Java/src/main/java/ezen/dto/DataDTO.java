@@ -52,11 +52,11 @@ public class DataDTO extends DbManager
 		sql +=        "SELECT 'negative' UNION ALL ";
 		sql +=        "SELECT 'neutral'";
 		sql += ") st ";
-		sql += "LEFT JOIN newsComments nc ";
+		sql += "LEFT JOIN newsComments1 nc ";
 		sql +=        "ON nc.date = dt.date ";
 		sql +=        "AND nc.sent_type = st.sent_type ";
 		sql +=        "AND nc.name = ? ";
-		sql += "WHERE dt.date BETWEEN CURDATE() - INTERVAL ? DAY AND CURDATE() ";
+		sql += "WHERE dt.date BETWEEN '2025-02-28' - INTERVAL ? DAY AND '2025-02-28' ";
 		sql += "GROUP BY dt.date, st.sent_type ";
 		sql += "ORDER BY dt.date ASC, ";
 		sql +=        "FIELD(st.sent_type, 'positive', 'neutral', 'negative');";
@@ -86,7 +86,7 @@ public class DataDTO extends DbManager
 	/* 거래량 데이터 불러오기 */
 	public ArrayList<DataVO> getTradingVol(String query, String day)
 	{
-String sql = "";
+		String sql = "";
 		
 		sql += "WITH DateSeries AS (";
 		sql +=     "SELECT d.date, ";
@@ -95,7 +95,7 @@ String sql = "";
 		sql +=     "FROM date_table d ";
 		sql +=     "LEFT JOIN tradingvolume t ";
 		sql +=     "ON d.date = t.date AND t.name = ? ";
-		sql +=     "WHERE d.date BETWEEN DATE_SUB(CURDATE(), INTERVAL ? DAY) AND CURDATE()";
+		sql +=     "WHERE d.date BETWEEN DATE_SUB('2025-02-28', INTERVAL ? DAY) AND '2025-02-28'";
 		sql += ")";
 		
 		sql += "SELECT date, ";
@@ -136,9 +136,9 @@ String sql = "";
 		sql +=        "date, ";
 		sql +=        "link, ";
 		sql +=        "COUNT(*) AS comment_count ";
-		sql += "FROM newsComments ";
+		sql += "FROM newsComments1 ";
 		sql += "WHERE name = ? ";
-		sql += "AND date > DATE_SUB(CURDATE(), INTERVAL ? DAY) ";
+		sql += "AND date > DATE_SUB('2025-02-28', INTERVAL ? DAY) ";
 		sql += "GROUP BY title, date, link ";
 		sql += "ORDER BY comment_count DESC ";
 		sql += "LIMIT 5), ";
@@ -149,7 +149,7 @@ String sql = "";
 		sql +=        "comment, ";
 		sql +=        "up, ";
 		sql +=        "ROW_NUMBER() OVER (PARTITION BY title, date ORDER BY up DESC) AS rn ";
-		sql +=        "FROM newsComments ";
+		sql +=        "FROM newsComments1 ";
 		sql += ")";
 		
 		sql += "SELECT ta.title, ";
@@ -207,7 +207,7 @@ String sql = "";
 		sql +=     "COUNT(*) as count ";
 		sql +=     "FROM discussion ";
 		sql +=     "WHERE name=? ";
-		sql +=     "AND date BETWEEN CURDATE() - INTERVAL ? DAY AND CURDATE() ";
+		sql +=     "AND date BETWEEN '2025-02-28' - INTERVAL ? DAY AND '2025-02-28' ";
 		sql +=     "GROUP BY sent_type ";
 		sql += ") AS d ";
 		sql += "ON s.sent_type = d.sent_type;";
@@ -246,7 +246,7 @@ String sql = "";
 		sql +=     "down ";
 		sql += "FROM discussion ";
 		sql += "WHERE name=? ";
-		sql += "AND date > DATE_SUB(CURDATE(), INTERVAL ? DAY) ";
+		sql += "AND date > DATE_SUB('2025-02-28', INTERVAL ? DAY) ";
 		sql += "ORDER BY up DESC ";
 		sql += "LIMIT 5;";
 		
